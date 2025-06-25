@@ -1,0 +1,332 @@
+/* Retro Recipe Search Styles */
+
+/* Import retro font */
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
+
+:root {
+    --retro-primary: #ff6b6b;
+    --retro-secondary: #4ecdc4;
+    --retro-dark: #45b7af;
+    --retro-light: #ffe66d;
+    --retro-bg: #f7f5e6;
+    --retro-text: #2c3e50;
+    --retro-border: #2c3e50;
+}
+
+/* Base styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--retro-bg);
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    color: var(--retro-text);
+    position: relative;
+}
+
+/* Retro pattern overlay */
+.retro-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(45deg, var(--retro-text) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--retro-text) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--retro-text) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--retro-text) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: -1;
+}
+
+main {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: 'Press Start 2P', cursive;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.display-4 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 3px 3px 0 var(--retro-primary);
+    position: relative;
+    display: inline-block;
+}
+
+.display-4::before,
+.display-4::after {
+    content: '🌟';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    animation: spin 4s linear infinite;
+}
+
+.display-4::before {
+    left: -2.5rem;
+}
+
+.display-4::after {
+    right: -2.5rem;
+}
+
+@keyframes spin {
+    from {
+        transform: translateY(-50%) rotate(0deg);
+    }
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+/* Recipe image container */
+.recipe-image-container {
+    position: relative;
+    padding: 10px;
+    background: white;
+    border: 4px solid var(--retro-border);
+    transform: rotate(-2deg);
+    transition: transform 0.3s ease;
+}
+
+.recipe-image-container:hover {
+    transform: rotate(0deg);
+}
+
+.recipe-image-container::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    width: 30px;
+    height: 30px;
+    background: var(--retro-light);
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+/* Step numbers */
+.step-number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background-color: var(--retro-primary);
+    color: white;
+    border-radius: 0;
+    margin-right: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+}
+
+/* Ingredient bullets */
+.ingredient-bullet {
+    display: inline-block;
+    color: var(--retro-primary);
+    margin-right: 10px;
+    font-weight: bold;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--retro-text) !important;
+    border-bottom: 4px solid var(--retro-primary);
+}
+
+.navbar-brand {
+    color: var(--retro-light) !important;
+    font-size: 1.5rem;
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border: 4px solid var(--retro-border);
+    border-radius: 0;
+    box-shadow: 8px 8px 0 var(--retro-primary);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0 var(--retro-primary);
+}
+
+.card-header {
+    background-color: var(--retro-text);
+    color: var(--retro-light);
+    border-bottom: 4px solid var(--retro-border);
+    border-radius: 0 !important;
+}
+
+/* Form elements */
+.form-control {
+    border: 3px solid var(--retro-border);
+    border-radius: 0;
+    padding: 0.75rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+}
+
+.form-control:focus {
+    border-color: var(--retro-primary);
+    box-shadow: 4px 4px 0 var(--retro-primary);
+}
+
+.form-select {
+    border: 3px solid var(--retro-border);
+    border-radius: 0;
+    padding: 0.75rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Buttons */
+.btn {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9rem;
+    padding: 1rem 1.5rem;
+    border: 3px solid var(--retro-border);
+    border-radius: 0;
+    box-shadow: 4px 4px 0 var(--retro-text);
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--retro-primary);
+    color: var(--retro-text);
+}
+
+.btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--retro-text);
+}
+
+.btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+}
+
+/* Recipe cards */
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 4px solid var(--retro-border);
+}
+
+/* Badges */
+.badge {
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    padding: 0.5em 1em;
+    border: 2px solid var(--retro-border);
+    border-radius: 0;
+}
+
+.bg-success {
+    background-color: var(--retro-secondary) !important;
+    color: var(--retro-text);
+}
+
+.bg-info {
+    background-color: var(--retro-light) !important;
+    color: var(--retro-text);
+}
+
+/* List groups */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    border-top: 2px solid var(--retro-border);
+    font-size: 1.2rem;
+    padding: 1rem;
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    margin: 2rem auto;
+    border-width: 0.25rem;
+    border-color: var(--retro-primary);
+    border-right-color: transparent;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--retro-text) !important;
+    color: var(--retro-light) !important;
+    border-top: 4px solid var(--retro-primary);
+    padding: 1rem 0;
+}
+
+.footer .text-muted {
+    color: var(--retro-light) !important;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+}
+
+/* Custom checkbox */
+.form-check-input {
+    border: 2px solid var(--retro-border);
+    border-radius: 0;
+}
+
+.form-check-input:checked {
+    background-color: var(--retro-primary);
+    border-color: var(--retro-border);
+}
+
+/* Alert styles */
+.alert {
+    border: 3px solid var(--retro-border);
+    border-radius: 0;
+    box-shadow: 4px 4px 0 var(--retro-text);
+}
+
+.alert-info {
+    background-color: var(--retro-secondary);
+    color: var(--retro-text);
+}
+
+.alert-danger {
+    background-color: var(--retro-primary);
+    color: var(--retro-text);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 150px;
+    }
+    
+    .display-4 {
+        font-size: 1.5rem;
+    }
+    
+    .btn {
+        font-size: 0.8rem;
+        padding: 0.75rem 1rem;
+    }
+} 

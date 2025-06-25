@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }} - Recipe Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Recipe Header -->
+        <div class="mb-4 text-center">
+            <h1 class="display-4 mb-3">🌟 {{ recipe.title }} 🌟</h1>
+            
+            <!-- Recipe Image -->
+            {% if recipe.image %}
+            <div class="recipe-image-container mb-4">
+                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="img-fluid rounded">
+            </div>
+            {% endif %}
+        </div>
+            
+        <!-- Quick Info -->
+        <div class="row mb-4">
+            <div class="col-sm-6 col-md-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">⏰ Time</h5>
+                        <p class="card-text">{{ recipe.ready_in_minutes }} mins</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">👥 Servings</h5>
+                        <p class="card-text">{{ recipe.servings }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">🥗 Diet</h5>
+                        <p class="card-text">
+                            {% if recipe.vegetarian %}🥬 Vegetarian{% endif %}
+                            {% if recipe.vegan %}🌱 Vegan{% endif %}
+                            {% if not recipe.vegetarian and not recipe.vegan %}🍖 Regular{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">🌾 Gluten</h5>
+                        <p class="card-text">
+                            {% if recipe.gluten_free %}✅ Free{% else %}❌ Contains{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ingredients -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">📝 Ingredients</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for ingredient in recipe.ingredients %}
+                    <li class="list-group-item">
+                        <span class="ingredient-bullet">→</span> {{ ingredient.original }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">👩‍🍳 Instructions</h2>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-flush list-group-numbered">
+                    {% for instruction in recipe.instructions %}
+                    <li class="list-group-item">
+                        <span class="step-number">{{ loop.index }}</span>
+                        {{ instruction.step }}
+                    </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mb-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                ⬅️ Back to Search
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

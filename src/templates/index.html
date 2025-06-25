@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Search - Find Your Next Meal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Search and Filters -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Search Recipes</h5>
+                <form id="searchForm" class="mb-4">
+                    <!-- Search Input -->
+                    <div class="mb-3">
+                        <label for="query" class="form-label">Recipe or Ingredient</label>
+                        <input type="text" class="form-control" id="query" name="query" required>
+                    </div>
+
+                    <!-- Diet Filter -->
+                    <div class="mb-3">
+                        <label for="diet" class="form-label">Diet</label>
+                        <select class="form-select" id="diet" name="diet">
+                            <option value="none">No specific diet</option>
+                            {% for diet in diets %}
+                            <option value="{{ diet }}">{{ diet|title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Intolerances -->
+                    <div class="mb-3">
+                        <label class="form-label">Intolerances</label>
+                        <div class="row">
+                            {% for intolerance in intolerances %}
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="intolerances" 
+                                           value="{{ intolerance }}" id="intolerance_{{ loop.index }}">
+                                    <label class="form-check-label" for="intolerance_{{ loop.index }}">
+                                        {{ intolerance|title }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Cooking Time -->
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">Cooking Time</label>
+                        <select class="form-select mb-2" id="difficulty" name="difficulty">
+                            <option value="none">No time preference</option>
+                            <option value="easy">Easy (up to 30 minutes)</option>
+                            <option value="medium">Medium (up to 60 minutes)</option>
+                            <option value="hard">Hard (up to 120 minutes)</option>
+                            <option value="custom">Custom time</option>
+                        </select>
+                        <div id="customTimeInput" class="d-none">
+                            <input type="number" class="form-control" name="max_time" 
+                                   placeholder="Maximum minutes" min="1" max="300">
+                        </div>
+                    </div>
+
+                    <!-- Calorie Range -->
+                    <div class="mb-3">
+                        <label class="form-label">Calorie Range (per serving)</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" name="min_calories" 
+                                       placeholder="Min calories" min="0">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" name="max_calories" 
+                                       placeholder="Max calories" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Search Recipes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="col-md-8">
+        <div id="searchResults" class="row g-4">
+            <!-- Results will be populated here -->
+        </div>
+        <div id="noResults" class="alert alert-info d-none" role="alert">
+            No recipes found. Try different search terms or filters.
+        </div>
+        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('searchForm');
+    const difficultySelect = document.getElementById('difficulty');
+    const customTimeInput = document.getElementById('customTimeInput');
+    const resultsContainer = document.getElementById('searchResults');
+    const noResultsMessage = document.getElementById('noResults');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Toggle custom time input
+    difficultySelect.addEventListener('change', function() {
+        customTimeInput.classList.toggle('d-none', this.value !== 'custom');
+    });
+
+    // Handle form submission
+    searchForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Clear previous results and messages
+        resultsContainer.innerHTML = '';
+        noResultsMessage.classList.add('d-none');
+        errorMessage.classList.add('d-none');
+        
+        // Show loading state
+        resultsContainer.innerHTML = '<div class="col-12 text-center"><div class="spinner-border" role="status"></div></div>';
+        
+        try {
+            const formData = new FormData(this);
+            const response = await fetch('/search', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to search recipes');
+            }
+            
+            // Clear loading state
+            resultsContainer.innerHTML = '';
+            
+            if (data.recipes && data.recipes.length > 0) {
+                data.recipes.forEach(recipe => {
+                    resultsContainer.innerHTML += `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <img src="${recipe.image}" class="card-img-top" alt="${recipe.title}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${recipe.title}</h5>
+                                    <p class="card-text">Ready in ${recipe.ready_in_minutes} minutes</p>
+                                    <div class="mb-2">
+                                        ${recipe.vegetarian ? '<span class="badge bg-success me-1">Vegetarian</span>' : ''}
+                                        ${recipe.vegan ? '<span class="badge bg-success me-1">Vegan</span>' : ''}
+                                        ${recipe.gluten_free ? '<span class="badge bg-info">Gluten-free</span>' : ''}
+                                    </div>
+                                    <a href="/recipe/${recipe.id}" class="btn btn-primary">View Recipe</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                noResultsMessage.classList.remove('d-none');
+            }
+        } catch (error) {
+            errorMessage.textContent = error.message;
+            errorMessage.classList.remove('d-none');
+        }
+    });
+});
+</script>
+{% endblock %} 
