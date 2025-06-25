@@ -3,101 +3,108 @@
 {% block title %}{{ recipe.title }} - Recipe Details{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <!-- Recipe Header -->
-        <div class="mb-4 text-center">
-            <h1 class="display-4 mb-3">🌟 {{ recipe.title }} 🌟</h1>
-            
-            <!-- Recipe Image -->
-            {% if recipe.image %}
-            <div class="recipe-image-container mb-4">
-                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="img-fluid rounded">
-            </div>
-            {% endif %}
-        </div>
-            
-        <!-- Quick Info -->
-        <div class="row mb-4">
-            <div class="col-sm-6 col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">⏰ Time</h5>
-                        <p class="card-text">{{ recipe.ready_in_minutes }} mins</p>
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Left Column: Recipe Details -->
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-lg retro-card">
+                <!-- Recipe Header -->
+                <div class="text-center mb-4">
+                    <h1 class="display-4">{{ recipe.title }}</h1>
+                    {% if recipe.image %}
+                    <div class="recipe-image-container my-4">
+                        <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="img-fluid rounded">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Quick Info Cards -->
+                <div class="row mb-4 text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <p class="mb-1">⏰</p>
+                        <strong>{{ recipe.ready_in_minutes }} mins</strong>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <p class="mb-1">👥</p>
+                        <strong>{{ recipe.servings }} Servings</strong>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        {% if recipe.vegetarian %}
+                        <p class="mb-1">🥬</p>
+                        <strong>Vegetarian</strong>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        {% if recipe.gluten_free %}
+                        <p class="mb-1">🌾</p>
+                        <strong>Gluten-Free</strong>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
-            <div class="col-sm-6 col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">👥 Servings</h5>
-                        <p class="card-text">{{ recipe.servings }}</p>
-                    </div>
+
+                <!-- Summary -->
+                {% if recipe.summary %}
+                <div class="summary-box mb-5 p-3" style="background-color: #fdfdfd; border-left: 4px solid var(--retro-secondary);">
+                    <p class="lead">{{ recipe.summary | safe }}</p>
                 </div>
-            </div>
-            <div class="col-sm-6 col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">🥗 Diet</h5>
-                        <p class="card-text">
-                            {% if recipe.vegetarian %}🥬 Vegetarian{% endif %}
-                            {% if recipe.vegan %}🌱 Vegan{% endif %}
-                            {% if not recipe.vegetarian and not recipe.vegan %}🍖 Regular{% endif %}
-                        </p>
+                {% endif %}
+
+                <div class="row">
+                    <!-- Ingredients -->
+                    <div class="col-md-5">
+                        <h3 class="mb-3 pixel-text">Ingredients</h3>
+                        <ul class="list-group list-group-flush mb-4">
+                            {% for ingredient in recipe.ingredients %}
+                            <li class="list-group-item">
+                                <span class="ingredient-bullet">▶</span> {{ ingredient.original }}
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">🌾 Gluten</h5>
-                        <p class="card-text">
-                            {% if recipe.gluten_free %}✅ Free{% else %}❌ Contains{% endif %}
-                        </p>
+
+                    <!-- Instructions -->
+                    <div class="col-md-7">
+                        <h3 class="mb-3 pixel-text">Instructions</h3>
+                        <ol class="list-unstyled">
+                            {% for instruction in recipe.instructions %}
+                            <li class="d-flex mb-3">
+                                <span class="step-number">{{ loop.index }}</span>
+                                <p class="ms-3">{{ instruction.step }}</p>
+                            </li>
+                            {% endfor %}
+                        </ol>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Ingredients -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h2 class="h5 mb-0">📝 Ingredients</h2>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    {% for ingredient in recipe.ingredients %}
-                    <li class="list-group-item">
-                        <span class="ingredient-bullet">→</span> {{ ingredient.original }}
-                    </li>
-                    {% endfor %}
-                </ul>
+        <!-- Right Sidebar: Related News -->
+        {% if related_news %}
+        <div class="col-lg-4">
+            <div class="card p-3 shadow-lg retro-card news-sidebar">
+                <h3 class="pixel-text text-center mb-3">📰 Food News</h3>
+                {% for article in related_news %}
+                <div class="news-item mb-3">
+                    {% if article.thumbnail %}
+                    <img src="{{ article.thumbnail }}" alt="News thumbnail" class="img-fluid mb-2 news-thumbnail">
+                    {% endif %}
+                    <h5 class="article-title">
+                        <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a>
+                    </h5>
+                    <p class="article-preview">{{ article.preview | safe }}</p>
+                </div>
+                {% if not loop.last %}<hr class="my-3">{% endif %}
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
+    </div>
 
-        <!-- Instructions -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h2 class="h5 mb-0">👩‍🍳 Instructions</h2>
-            </div>
-            <div class="card-body">
-                <ol class="list-group list-group-flush list-group-numbered">
-                    {% for instruction in recipe.instructions %}
-                    <li class="list-group-item">
-                        <span class="step-number">{{ loop.index }}</span>
-                        {{ instruction.step }}
-                    </li>
-                    {% endfor %}
-                </ol>
-            </div>
-        </div>
-
-        <!-- Back Button -->
-        <div class="text-center mb-4">
-            <a href="{{ url_for('index') }}" class="btn btn-primary">
-                ⬅️ Back to Search
-            </a>
-        </div>
+    <!-- Back Button -->
+    <div class="text-center my-4">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">
+            ⬅️ Back to Search
+        </a>
     </div>
 </div>
 {% endblock %} 

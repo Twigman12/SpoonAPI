@@ -315,7 +315,50 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     color: var(--retro-text);
 }
 
+/* News Sidebar Styles */
+.news-sidebar {
+    background-color: white;
+}
+
+.news-item {
+    border-bottom: 3px dashed var(--retro-border);
+    padding-bottom: 1rem;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+.news-thumbnail {
+    border: 3px solid var(--retro-border);
+    margin-bottom: 0.75rem;
+}
+
+.article-title a {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9rem;
+    color: var(--retro-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.article-title a:hover {
+    color: var(--retro-secondary);
+}
+
+.article-preview {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    color: var(--retro-text);
+}
+
 /* Responsive adjustments */
+@media (max-width: 992px) {
+    .news-sidebar {
+        margin-top: 2rem;
+    }
+}
+
 @media (max-width: 768px) {
     .card-img-top {
         height: 150px;
