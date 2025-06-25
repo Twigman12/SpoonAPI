@@ -1,5 +1,14 @@
 """
-Parser for Spoonacular API response data.
+Data Parser Module for Spoonacular API Responses
+
+This module handles the parsing and formatting of data received from the Spoonacular API.
+It provides functions to:
+1. Parse search results into a simplified format
+2. Parse detailed recipe information into a structured format
+3. Format recipe information for display
+
+The module focuses on extracting relevant information and presenting it in a
+user-friendly format while handling missing or invalid data gracefully.
 """
 
 from typing import Dict, List, Any
@@ -8,14 +17,25 @@ def parse_recipe_search_results(search_results: Dict[str, Any]) -> List[Dict[str
     """
     Parse recipe search results into a simplified format.
     
+    This function extracts the most relevant information from search results,
+    making it easier to display a list of recipes to the user. It handles
+    missing data gracefully by using dict.get() with default values.
+    
     Args:
-        search_results (Dict[str, Any]): Raw search results from the API
+        search_results (Dict[str, Any]): Raw search results from the API containing
+            a 'results' list of recipe previews
         
     Returns:
-        List[Dict[str, Any]]: List of simplified recipe information
+        List[Dict[str, Any]]: List of simplified recipe information, each containing:
+            - id: Recipe identifier
+            - title: Recipe name
+            - image: URL to recipe image
+            - ready_in_minutes: Cooking time
+            - servings: Number of servings
     """
     recipes = []
     
+    # Iterate through results, extracting relevant information
     for result in search_results.get("results", []):
         recipe = {
             "id": result.get("id"),
@@ -32,41 +52,57 @@ def parse_recipe_details(recipe_details: Dict[str, Any]) -> Dict[str, Any]:
     """
     Parse detailed recipe information into a structured format.
     
+    This function handles the complex nested structure of recipe details,
+    extracting and organizing:
+    1. Basic recipe information
+    2. Ingredients with measurements
+    3. Step-by-step instructions
+    4. Dietary information
+    
     Args:
         recipe_details (Dict[str, Any]): Raw recipe details from the API
         
     Returns:
-        Dict[str, Any]: Structured recipe information
+        Dict[str, Any]: Structured recipe information containing:
+            - Basic info (id, title, time, servings)
+            - Ingredients list with measurements
+            - Cooking instructions
+            - Dietary information (vegetarian, vegan, etc.)
     """
-    # Parse ingredients
+    # Parse ingredients into a structured format
     ingredients = []
     for ingredient in recipe_details.get("extendedIngredients", []):
         ingredients.append({
-            "name": ingredient.get("name", ""),
-            "amount": ingredient.get("amount", 0),
-            "unit": ingredient.get("unit", ""),
-            "original": ingredient.get("original", "")
+            "name": ingredient.get("name", ""),  # Base ingredient name
+            "amount": ingredient.get("amount", 0),  # Numerical amount
+            "unit": ingredient.get("unit", ""),  # Measurement unit
+            "original": ingredient.get("original", "")  # Original text description
         })
     
-    # Parse instructions
+    # Parse cooking instructions, handling multiple instruction sets
     instructions = []
     for instruction_set in recipe_details.get("analyzedInstructions", []):
         for step in instruction_set.get("steps", []):
             instructions.append({
-                "number": step.get("number", 0),
-                "step": step.get("step", "")
+                "number": step.get("number", 0),  # Step number
+                "step": step.get("step", "")  # Step description
             })
     
-    # Create structured recipe data
+    # Create comprehensive recipe data structure
     structured_recipe = {
+        # Basic information
         "id": recipe_details.get("id"),
         "title": recipe_details.get("title"),
         "ready_in_minutes": recipe_details.get("readyInMinutes"),
         "servings": recipe_details.get("servings"),
         "image": recipe_details.get("image"),
         "summary": recipe_details.get("summary"),
+        
+        # Detailed information
         "ingredients": ingredients,
         "instructions": instructions,
+        
+        # Dietary information
         "vegetarian": recipe_details.get("vegetarian", False),
         "vegan": recipe_details.get("vegan", False),
         "gluten_free": recipe_details.get("glutenFree", False),
@@ -142,15 +178,23 @@ def parse_wine_pairing(wine_data: Dict[str, Any]) -> Dict[str, Any]:
 
 def format_recipe_display(recipe: Dict[str, Any]) -> str:
     """
-    Format recipe information for display.
+    Format recipe information for display in the terminal.
+    
+    This function creates a well-formatted string representation of a recipe,
+    including:
+    1. Title and basic information
+    2. Dietary restrictions
+    3. Ingredients list
+    4. Step-by-step instructions
     
     Args:
-        recipe (Dict[str, Any]): Structured recipe information
+        recipe (Dict[str, Any]): Structured recipe information from parse_recipe_details()
         
     Returns:
-        str: Formatted recipe string for display
+        str: Formatted string ready for display, with sections separated by
+            newlines and proper indentation
     """
-    # Format basic information
+    # Create header with recipe title and basic information
     display = [
         f"\n{'='*50}",
         f"\n{recipe['title'].upper()}\n",
@@ -158,7 +202,7 @@ def format_recipe_display(recipe: Dict[str, Any]) -> str:
         f"{'='*50}\n"
     ]
     
-    # Add dietary information
+    # Add dietary information if any restrictions apply
     diet_info = []
     if recipe["vegetarian"]:
         diet_info.append("Vegetarian")
@@ -172,16 +216,17 @@ def format_recipe_display(recipe: Dict[str, Any]) -> str:
     if diet_info:
         display.append(f"Dietary Info: {', '.join(diet_info)}\n")
     
-    # Add ingredients
+    # Add ingredients section
     display.append("\nINGREDIENTS:\n")
     for ingredient in recipe["ingredients"]:
         display.append(f"• {ingredient['original']}")
     
-    # Add instructions
+    # Add instructions section
     display.append("\nINSTRUCTIONS:\n")
     for instruction in recipe["instructions"]:
         display.append(f"{instruction['number']}. {instruction['step']}")
     
+    # Join all sections with newlines
     return "\n".join(display)
 
 def format_nutrition_display(nutrition: Dict[str, Any]) -> str:

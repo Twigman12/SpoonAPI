@@ -1,5 +1,15 @@
 """
-Spoonacular API client for recipe search and information retrieval.
+Spoonacular API Client Module
+
+This module provides a client for interacting with the Spoonacular API.
+It handles all direct communication with the API, including:
+- API key management
+- Request handling
+- Error handling
+- Response validation
+
+The client uses environment variables for secure API key storage and
+implements proper error handling for API requests.
 """
 
 import os
@@ -7,11 +17,20 @@ import requests
 from typing import Dict, Optional, Any, List
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load API key from environment variables
 load_dotenv()
 
 class SpoonacularClient:
-    """Client for interacting with the Spoonacular API."""
+    """
+    Client for interacting with the Spoonacular API.
+    
+    This class encapsulates all API interaction logic, providing a clean interface
+    for searching recipes and getting detailed recipe information.
+    
+    Attributes:
+        BASE_URL (str): Base URL for all Spoonacular API endpoints
+        api_key (str): API key loaded from environment variables
+    """
     
     BASE_URL = "https://api.spoonacular.com"
     
@@ -35,7 +54,13 @@ class SpoonacularClient:
     }
     
     def __init__(self):
-        """Initialize the Spoonacular API client."""
+        """
+        Initialize the Spoonacular API client.
+        
+        Raises:
+            ValueError: If the SPOONACULAR_API_KEY environment variable is not set
+        """
+        # Load API key from environment variables
         self.api_key = os.getenv("SPOONACULAR_API_KEY")
         if not self.api_key:
             raise ValueError("Spoonacular API key not found in environment variables")
@@ -44,8 +69,15 @@ class SpoonacularClient:
         """
         Make a request to the Spoonacular API.
         
+        This is a private helper method that handles:
+        1. Adding the API key to parameters
+        2. Constructing the full URL
+        3. Making the HTTP request
+        4. Handling response validation
+        5. Converting response to JSON
+        
         Args:
-            endpoint (str): API endpoint to call
+            endpoint (str): API endpoint to call (e.g., "/recipes/search")
             params (Dict[str, Any], optional): Query parameters for the request
             
         Returns:
@@ -53,16 +85,17 @@ class SpoonacularClient:
             
         Raises:
             requests.exceptions.RequestException: If the API request fails
+            ValueError: If the response is not valid JSON
         """
         if params is None:
             params = {}
         
-        # Add API key to parameters
+        # Always include API key in parameters
         params["apiKey"] = self.api_key
         
-        # Make the request
+        # Make the request and validate response
         response = requests.get(f"{self.BASE_URL}{endpoint}", params=params)
-        response.raise_for_status()
+        response.raise_for_status()  # Raises an HTTPError for bad responses (4xx, 5xx)
         
         return response.json()
     
@@ -78,9 +111,14 @@ class SpoonacularClient:
         """
         Search for recipes with advanced filtering options.
         
+        This method uses the /recipes/complexSearch endpoint which provides:
+        - Basic recipe information
+        - Filtering capabilities
+        - Sorting options
+        
         Args:
-            query (str): Search query
-            number (int): Number of results to return
+            query (str): Search query (e.g., "chicken curry", "vegetarian pasta")
+            number (int, optional): Number of results to return. Defaults to 5.
             diet (str, optional): Specific diet (e.g., "vegetarian", "vegan")
             intolerances (List[str], optional): List of intolerances
             max_ready_time (int, optional): Maximum total minutes for recipe
@@ -89,10 +127,11 @@ class SpoonacularClient:
             max_calories (int, optional): Maximum calories per serving
             
         Returns:
-            Dict[str, Any]: Search results
-            
-        Raises:
-            ValueError: If invalid diet, intolerances, or difficulty level provided
+            Dict[str, Any]: Search results containing:
+                - results: List of recipe previews
+                - offset: Starting position of results
+                - number: Number of results returned
+                - totalResults: Total number of matches
         """
         # Validate diet
         if diet and diet.lower() not in self.VALID_DIETS:
@@ -143,15 +182,23 @@ class SpoonacularClient:
         """
         Get detailed information about a specific recipe.
         
+        This method uses the /recipes/{id}/information endpoint to fetch:
+        - Complete ingredient list with amounts
+        - Step-by-step instructions
+        - Nutritional information
+        - Cooking time and servings
+        - Dietary information (vegetarian, vegan, etc.)
+        
         Args:
-            recipe_id (int): ID of the recipe
+            recipe_id (int): ID of the recipe to fetch
             
         Returns:
-            Dict[str, Any]: Recipe details
+            Dict[str, Any]: Complete recipe information including
+                ingredients, instructions, and nutritional data
         """
         endpoint = f"/recipes/{recipe_id}/information"
         params = {
-            "includeNutrition": True  # Now including nutritional information
+            "includeNutrition": False  # Exclude nutritional info to reduce response size
         }
         
         return self._make_request(endpoint, params)

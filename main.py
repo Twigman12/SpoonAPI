@@ -1,7 +1,19 @@
 """
 Recipe Details Finder - Main application entry point
+
+This module serves as the main entry point for the Recipe Details Finder application.
+It handles user interaction, recipe searching, and displaying results in a user-friendly format.
+
+Flow:
+1. Initialize API client
+2. Get search query from user
+3. Search for recipes
+4. Display results and get user selection
+5. Show detailed recipe information
+6. Repeat or quit
 """
 
+import sys
 from src.api_client import SpoonacularClient
 from src.data_parser import parse_recipe_search_results, parse_recipe_details, format_recipe_display
 from typing import List, Optional
@@ -92,85 +104,88 @@ def get_filters() -> dict:
     return filters
 
 def main():
-    """Main function for recipe search and display."""
+    """
+    Main application function that orchestrates the recipe search and display process.
+    
+    The function implements a continuous loop that:
+    1. Takes user input for recipe search
+    2. Retrieves recipes from Spoonacular API
+    3. Displays results and gets user selection
+    4. Shows detailed recipe information
+    5. Allows for new searches or exit
+    
+    Error handling is implemented at multiple levels:
+    - API client initialization (checks for API key)
+    - Recipe search (handles API errors)
+    - User input validation (handles invalid selections)
+    """
     try:
-        # Initialize the client
+        # Initialize the API client - This will validate the API key exists
         client = SpoonacularClient()
-        print("\n=== Welcome to Recipe Search ===")
-        print("Type 'quit' at any time to exit\n")
         
-        while True:
-            # Get search query
-            query = input("Enter a recipe to search for: ").strip()
-            if query.lower() == 'quit':
-                print("\nThank you for using Recipe Search!")
-                return 0
-            
-            if not query:
-                print("Please enter a search term")
-                continue
-            
+        # Main application loop - continues until user types 'quit'
+        query = input("\nEnter a recipe to search for (or 'quit' to exit): ").strip()
+        
+        while query.lower() != 'quit':
             try:
-                # Get filters
-                filters = get_filters()
-                
-                # Search for recipes
+                # Search for recipes using the API client
                 print("\nSearching for recipes...")
-                search_results = client.search_recipes(query, number=5, **filters)
+                search_results = client.search_recipes(query)
                 recipes = parse_recipe_search_results(search_results)
                 
+                # Handle case where no recipes are found
                 if not recipes:
-                    print("\nNo recipes found. Please try different search terms or filters.")
+                    print("\nNo recipes found. Please try a different search term.")
+                    query = input("\nEnter a recipe to search for (or 'quit' to exit): ").strip()
                     continue
                 
-                # Display search results
-                print("\nFound Recipes:")
-                print("=" * 50)
+                # Display numbered list of found recipes
+                print("\nFound the following recipes:")
                 for i, recipe in enumerate(recipes, 1):
-                    print(f"{i}. {recipe['title']}")
-                    print(f"   Ready in: {recipe['ready_in_minutes']} minutes")
-                    if recipe.get('vegetarian'):
-                        print("   • Vegetarian")
-                    if recipe.get('vegan'):
-                        print("   • Vegan")
-                    if recipe.get('gluten_free'):
-                        print("   • Gluten-free")
-                print("\n0. Search for different recipes")
+                    print(f"{i}. {recipe['title']} ({recipe['ready_in_minutes']} minutes)")
                 
-                # Get user selection
-                selection = get_valid_number("\nEnter the number of the recipe you want to view: ", 0, len(recipes))
+                # Get and validate user selection
+                while True:
+                    try:
+                        selection = int(input("\nEnter the number of the recipe you want to view (0 to search again): "))
+                        if 0 <= selection <= len(recipes):
+                            break
+                        print("Invalid selection. Please try again.")
+                    except ValueError:
+                        print("Please enter a valid number.")
                 
+                # Handle user choosing to search again
                 if selection == 0:
+                    query = input("\nEnter a recipe to search for (or 'quit' to exit): ").strip()
                     continue
                 
                 # Get and display detailed recipe information
                 selected_recipe = recipes[selection - 1]
-                print(f"\nFetching details for {selected_recipe['title']}...")
+                # Make a separate API call to get full recipe details
                 recipe_details = client.get_recipe_information(selected_recipe['id'])
+                # Parse the detailed information into a structured format
                 structured_recipe = parse_recipe_details(recipe_details)
+                
+                # Display the formatted recipe
                 print(format_recipe_display(structured_recipe))
                 
-                # Ask if user wants to continue
-                print("\nWhat would you like to do next?")
-                print("1. Search for more recipes")
-                print("2. Exit")
-                
-                choice = get_valid_number("Enter your choice (1-2): ", 1, 2)
-                if choice == 2:
-                    print("\nThank you for using Recipe Search!")
-                    return 0
+                # Prompt for next action
+                query = input("\nEnter a recipe to search for (or 'quit' to exit): ").strip()
                 
             except Exception as e:
+                # Handle any errors during recipe search and display
                 print(f"\nError while processing request: {str(e)}")
-                print("Please try again with different search terms or filters.")
-                
-    except Exception as e:
-        print(f"\nError: {str(e)}")
-        if "API key" in str(e):
-            print("Please make sure you have set up your SPOONACULAR_API_KEY in the .env file.")
-        return 1
+                query = input("\nEnter a recipe to search for (or 'quit' to exit): ").strip()
     
-    return 0
+    except ValueError as e:
+        # Handle API key configuration errors
+        print(f"Error: {str(e)}")
+        print("Please make sure you have set up your SPOONACULAR_API_KEY in the .env file.")
+        sys.exit(1)
+    except Exception as e:
+        # Handle any unexpected errors
+        print(f"An unexpected error occurred: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main() 
