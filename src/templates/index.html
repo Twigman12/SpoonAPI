@@ -103,7 +103,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const customTimeInput = document.getElementById('customTimeInput');
     const resultsContainer = document.getElementById('searchResults');
     const noResultsMessage = document.getElementById('noResults');
-    const errorMessage = document.getElementById('errorMessage');
+
+    // Helper: render skeleton loader cards
+    function renderSkeletonCards(count = 9) {
+        let skeletonHTML = '';
+        for (let i = 0; i < count; i++) {
+            skeletonHTML += `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-3">
+                        <div class="skeleton skeleton-img mb-3" style="height: 150px;"></div>
+                        <div class="skeleton skeleton-text mb-2" style="height: 20px; width: 80%;"></div>
+                        <div class="skeleton skeleton-text mb-2" style="height: 16px; width: 60%;"></div>
+                    </div>
+                </div>`;
+        }
+        resultsContainer.innerHTML = skeletonHTML;
+    }
 
     // Toggle custom time input
     difficultySelect.addEventListener('change', function() {
@@ -117,10 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear previous results and messages
         resultsContainer.innerHTML = '';
         noResultsMessage.classList.add('d-none');
-        errorMessage.classList.add('d-none');
         
         // Show loading state
-        resultsContainer.innerHTML = '<div class="col-12 text-center"><div class="spinner-border" role="status"></div></div>';
+        renderSkeletonCards();
         
         try {
             const formData = new FormData(this);
@@ -162,8 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 noResultsMessage.classList.remove('d-none');
             }
         } catch (error) {
-            errorMessage.textContent = error.message;
-            errorMessage.classList.remove('d-none');
+            showToast(error.message || 'Failed to search recipes', 'danger');
         }
     });
 });
