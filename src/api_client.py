@@ -102,6 +102,7 @@ class SpoonacularClient:
     def search_recipes(self, 
                       query: str,
                       number: int = 5,
+                      offset: int = 0,
                       diet: Optional[str] = None,
                       intolerances: Optional[List[str]] = None,
                       max_ready_time: Optional[int] = None,
@@ -154,6 +155,7 @@ class SpoonacularClient:
         params = {
             "query": query,
             "number": number,
+            "offset": offset,
             "addRecipeInformation": True,
             "fillIngredients": True,
             "instructionsRequired": True

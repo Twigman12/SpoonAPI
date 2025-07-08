@@ -134,17 +134,34 @@ document.addEventListener('DOMContentLoaded', function() {
         customTimeInput.classList.toggle('d-none', this.value !== 'custom');
     });
 
-    // Core search function (used by form submit & live search)
-    async function performSearch(updateUrl = true) {
-        // Clear previous results and messages
-        resultsContainer.innerHTML = '';
-        noResultsMessage.classList.add('d-none');
+    // Pagination state
+    let nextOffset = 0;
+    let hasMore = false;
+    let isLoading = false;
 
-        // Show loading skeletons
-        renderSkeletonCards();
+    // Core search function (used by form submit & live search)
+    async function performSearch(updateUrl = true, offset = 0, append = false) {
+        // Clear previous results and messages
+        if (!append) {
+            resultsContainer.innerHTML = '';
+            noResultsMessage.classList.add('d-none');
+            nextOffset = 0;
+            hasMore = false;
+        }
+
+        if (append) {
+            // Show small spinner at bottom
+            resultsContainer.insertAdjacentHTML('beforeend', `<div id="loadMoreSpinner" class="col-12 text-center"><div class="spinner-border" role="status"></div></div>`);
+        } else {
+            // Show skeletons for initial load
+            renderSkeletonCards();
+        }
 
         try {
             const formData = new FormData(searchForm);
+            if (offset > 0) {
+                formData.append('offset', offset);
+            }
             // Update URL with current form state (shareable/searchable)
             if (updateUrl) {
                 const params = new URLSearchParams();
@@ -177,12 +194,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(data.error || 'Failed to search recipes');
             }
 
-            // Clear loading skeletons
-            resultsContainer.innerHTML = '';
+            // Remove loading indicators
+            if (append) {
+                const spinner = document.getElementById('loadMoreSpinner');
+                if (spinner) spinner.remove();
+            } else {
+                resultsContainer.innerHTML = '';
+            }
 
             if (data.recipes && data.recipes.length > 0) {
                 data.recipes.forEach(recipe => {
-                    resultsContainer.innerHTML += `
+                    resultsContainer.insertAdjacentHTML('beforeend', `
                         <div class="col-md-6 col-lg-4">
                             <div class="card h-100">
                                 <img src="${recipe.image}" class="card-img-top" alt="${recipe.title}">
@@ -198,12 +220,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                         </div>
-                    `;
+                    `);
                 });
+                nextOffset = data.next_offset || 0;
+                hasMore = data.has_more;
             } else {
                 noResultsMessage.classList.remove('d-none');
+                hasMore = false;
             }
+            isLoading = false;
         } catch (error) {
+            isLoading = false;
+            const spinner = document.getElementById('loadMoreSpinner');
+            if (spinner) spinner.remove();
             showToast(error.message || 'Failed to search recipes', 'danger');
         }
     }
@@ -211,16 +240,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle form submission (manual search)
     searchForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        performSearch(true);
+        performSearch(true, 0, false);
     });
 
     // Live search on query input
     const queryInput = document.getElementById('query');
     queryInput.addEventListener('input', debounce(function() {
         if (this.value.trim().length >= 3) {
-            performSearch(true);
+            performSearch(true, 0, false);
         }
     }, 400));
+
+    // Infinite scroll listener
+    window.addEventListener('scroll', () => {
+        if (hasMore && !isLoading && (window.innerHeight + window.scrollY >= document.body.offsetHeight - 400)) {
+            isLoading = true;
+            performSearch(false, nextOffset, true);
+        }
+    });
 
     // Prefill form from URL parameters on page load
     function populateFormFromURL() {
@@ -258,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Perform search without pushing URL again
-        performSearch(false);
+        performSearch(false, 0, false);
     }
 
     populateFormFromURL();

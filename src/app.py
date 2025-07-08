@@ -39,6 +39,14 @@ def search():
         
         # Build filters
         filters = {}
+
+        # Pagination offset
+        try:
+            offset = int(data.get('offset', 0))
+            if offset < 0:
+                offset = 0
+        except ValueError:
+            offset = 0
         
         # Diet filter
         diet = data.get('diet')
@@ -78,10 +86,14 @@ def search():
                 return jsonify({'error': 'Invalid maximum calories'}), 400
         
         # Search recipes
-        results = client.search_recipes(query, number=9, **filters)
+        results = client.search_recipes(query, number=9, offset=offset, **filters)
         recipes = parse_recipe_search_results(results)
         
-        return jsonify({'recipes': recipes})
+        next_offset = results.get('offset', 0) + len(recipes)
+        total = results.get('totalResults', 0)
+        has_more = next_offset < total
+
+        return jsonify({'recipes': recipes, 'next_offset': next_offset, 'has_more': has_more})
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
