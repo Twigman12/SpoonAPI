@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Core search function (used by form submit & live search)
-    async function performSearch() {
+    async function performSearch(updateUrl = true) {
         // Clear previous results and messages
         resultsContainer.innerHTML = '';
         noResultsMessage.classList.add('d-none');
@@ -145,6 +145,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const formData = new FormData(searchForm);
+            // Update URL with current form state (shareable/searchable)
+            if (updateUrl) {
+                const params = new URLSearchParams();
+                for (const [key, value] of formData.entries()) {
+                    if (value === '' || value === 'none') continue; // Skip empty/default options
+                    if (key === 'difficulty' && value === 'custom') continue; // handled via max_time
+                    if (key === 'intolerances') {
+                        // Collect multiple intolerances later
+                        continue;
+                    }
+                    params.append(key, value);
+                }
+                // Handle multiple intolerances explicitly to avoid duplicates
+                const intolerances = formData.getAll('intolerances');
+                if (intolerances.length) {
+                    params.set('intolerances', intolerances.join(','));
+                }
+                // Use replaceState to avoid polluting history on every keystroke
+                history.replaceState({}, '', `${location.pathname}?${params.toString()}`);
+            }
+
             const response = await fetch('/search', {
                 method: 'POST',
                 body: formData
@@ -190,16 +211,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle form submission (manual search)
     searchForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        performSearch();
+        performSearch(true);
     });
 
     // Live search on query input
     const queryInput = document.getElementById('query');
     queryInput.addEventListener('input', debounce(function() {
         if (this.value.trim().length >= 3) {
-            performSearch();
+            performSearch(true);
         }
     }, 400));
+
+    // Prefill form from URL parameters on page load
+    function populateFormFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('query')) return; // Nothing to do
+
+        if (params.get('query')) queryInput.value = params.get('query');
+        if (params.get('diet')) document.getElementById('diet').value = params.get('diet');
+
+        // Intolerances (comma separated)
+        if (params.get('intolerances')) {
+            const selected = params.get('intolerances').split(',');
+            selected.forEach(val => {
+                const checkbox = document.querySelector(`input[name="intolerances"][value="${val}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+
+        // Difficulty vs custom time
+        if (params.get('difficulty')) {
+            difficultySelect.value = params.get('difficulty');
+        }
+
+        if (params.get('max_time')) {
+            difficultySelect.value = 'custom';
+            customTimeInput.classList.remove('d-none');
+            customTimeInput.querySelector('input[name="max_time"]').value = params.get('max_time');
+        }
+
+        if (params.get('min_calories')) {
+            document.querySelector('input[name="min_calories"]').value = params.get('min_calories');
+        }
+        if (params.get('max_calories')) {
+            document.querySelector('input[name="max_calories"]').value = params.get('max_calories');
+        }
+
+        // Perform search without pushing URL again
+        performSearch(false);
+    }
+
+    populateFormFromURL();
+
+    // Re-run populateForm when the user navigates with browser back/forward
+    window.addEventListener('popstate', populateFormFromURL);
 });
 </script>
 {% endblock %} 
