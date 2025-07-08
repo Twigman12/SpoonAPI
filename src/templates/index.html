@@ -120,38 +120,45 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.innerHTML = skeletonHTML;
     }
 
-    // Toggle custom time input
+    // Debounce utility
+    function debounce(fn, delay = 300) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    // Toggle custom time input (ensure still works)
     difficultySelect.addEventListener('change', function() {
         customTimeInput.classList.toggle('d-none', this.value !== 'custom');
     });
 
-    // Handle form submission
-    searchForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
+    // Core search function (used by form submit & live search)
+    async function performSearch() {
         // Clear previous results and messages
         resultsContainer.innerHTML = '';
         noResultsMessage.classList.add('d-none');
-        
-        // Show loading state
+
+        // Show loading skeletons
         renderSkeletonCards();
-        
+
         try {
-            const formData = new FormData(this);
+            const formData = new FormData(searchForm);
             const response = await fetch('/search', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const data = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to search recipes');
             }
-            
-            // Clear loading state
+
+            // Clear loading skeletons
             resultsContainer.innerHTML = '';
-            
+
             if (data.recipes && data.recipes.length > 0) {
                 data.recipes.forEach(recipe => {
                     resultsContainer.innerHTML += `
@@ -178,7 +185,21 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             showToast(error.message || 'Failed to search recipes', 'danger');
         }
+    }
+
+    // Handle form submission (manual search)
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
     });
+
+    // Live search on query input
+    const queryInput = document.getElementById('query');
+    queryInput.addEventListener('input', debounce(function() {
+        if (this.value.trim().length >= 3) {
+            performSearch();
+        }
+    }, 400));
 });
 </script>
 {% endblock %} 
