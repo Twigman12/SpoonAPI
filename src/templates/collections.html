@@ -15,12 +15,7 @@
 }
 
 .collection-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
 }
 
 .collection-header-content {
@@ -144,12 +139,6 @@
 
 /* Mobile-specific improvements */
 @media (max-width: 768px) {
-    .collection-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-    }
-    
     .collection-header h1 {
         font-size: 1.5rem;
         text-align: center;
@@ -158,12 +147,6 @@
     .collection-header p {
         font-size: 0.9rem;
         text-align: center;
-    }
-    
-    .collection-header .btn {
-        align-self: center;
-        width: auto;
-        min-width: 200px;
     }
     
     .empty-collections {
@@ -252,6 +235,10 @@
             <h1><i class="fas fa-folder-open"></i> Recipe Collections</h1>
             <p class="text-muted">Organize your favorite recipes into custom collections</p>
         </div>
+    </div>
+    
+    <!-- New Collection Button -->
+    <div class="text-center mb-4">
         <a href="{{ url_for('create_collection') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> New Collection
         </a>
