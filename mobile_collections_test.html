@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Collections Test</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Import retro font -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --retro-primary: #ff6b6b;
+            --retro-secondary: #4ecdc4;
+            --retro-dark: #45b7af;
+            --retro-light: #ffe66d;
+            --retro-bg: #f7f5e6;
+            --retro-text: #2c3e50;
+            --retro-border: #2c3e50;
+        }
+
+        body {
+            background-color: var(--retro-bg);
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            color: var(--retro-text);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            padding: 1rem 1.5rem;
+            border: 3px solid var(--retro-border);
+            border-radius: 0;
+            box-shadow: 4px 4px 0 var(--retro-text);
+            transition: all 0.2s ease;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: var(--retro-primary);
+            color: var(--retro-text);
+        }
+
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .collection-header-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .collection-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .collection-header p {
+            font-size: 1rem;
+            margin-bottom: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .collection-header .btn {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .empty-collections {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .empty-collections i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-collections h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .empty-collections p {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .create-first-collection-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            max-width: 100%;
+            width: auto;
+            min-width: 280px;
+        }
+
+        .create-first-collection-btn i {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .create-first-collection-btn .btn-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.2;
+        }
+
+        .create-first-collection-btn .btn-text .line1 {
+            font-size: 0.9rem;
+        }
+
+        .create-first-collection-btn .btn-text .line2 {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            .collection-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .collection-header h1 {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+            
+            .collection-header p {
+                font-size: 0.9rem;
+                text-align: center;
+            }
+            
+            .collection-header .btn {
+                align-self: center;
+                width: auto;
+                min-width: 200px;
+            }
+            
+            .empty-collections {
+                padding: 40px 15px;
+            }
+            
+            .empty-collections h3 {
+                font-size: 1.3rem;
+            }
+            
+            .empty-collections p {
+                font-size: 0.9rem;
+                padding: 0 10px;
+            }
+            
+            .create-first-collection-btn {
+                min-width: 250px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .create-first-collection-btn .btn-text .line1 {
+                font-size: 0.8rem;
+            }
+            
+            .create-first-collection-btn .btn-text .line2 {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .collection-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .collection-header p {
+                font-size: 0.8rem;
+            }
+            
+            .empty-collections {
+                padding: 30px 10px;
+            }
+            
+            .empty-collections h3 {
+                font-size: 1.2rem;
+            }
+            
+            .empty-collections p {
+                font-size: 0.85rem;
+            }
+            
+            .create-first-collection-btn {
+                min-width: 220px;
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            .create-first-collection-btn .btn-text .line1 {
+                font-size: 0.75rem;
+            }
+            
+            .create-first-collection-btn .btn-text .line2 {
+                font-size: 0.85rem;
+            }
+            
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            
+            main {
+                overflow-x: hidden;
+                max-width: 100vw;
+            }
+            
+            h1, h2, h3, h4, h5, h6 {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+            
+            p {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+        }
+
+        /* Ensure buttons stay within container */
+        .btn {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn i {
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="collection-header">
+            <div class="collection-header-content">
+                <h1><i class="fas fa-folder-open"></i> Recipe Collections</h1>
+                <p class="text-muted">Organize your favorite recipes into custom collections</p>
+            </div>
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Collection
+            </a>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-collections">
+            <i class="fas fa-folder-open"></i>
+            <h3>No Collections Yet</h3>
+            <p>Create your first recipe collection to start organizing your favorite recipes.</p>
+            <a href="#" class="btn btn-primary btn-lg create-first-collection-btn">
+                <i class="fas fa-plus"></i>
+                <div class="btn-text">
+                    <span class="line1">Create Your First</span>
+                    <span class="line2">Collection</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive feedback
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.transform = 'translate(-2px, -2px)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
