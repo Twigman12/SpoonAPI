@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Create Collection{% endblock %}
+
+{% block extra_css %}
+<style>
+.color-picker {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    border-color: #333;
+    transform: scale(1.1);
+}
+
+.color-option input[type="radio"] {
+    display: none;
+}
+
+.form-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.form-section h5 {
+    color: #495057;
+    margin-bottom: 15px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1><i class="fas fa-folder-plus"></i> Create New Collection</h1>
+                <p class="text-muted">Organize your recipes into a custom collection</p>
+            </div>
+
+            <!-- Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle"></i> Basic Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Collection Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       placeholder="e.g., Quick Weeknight Dinners" required>
+                                <div class="form-text">Choose a descriptive name for your collection</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"
+                                          placeholder="Describe what types of recipes this collection will contain..."></textarea>
+                                <div class="form-text">Optional description to help you remember what's in this collection</div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Customization -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-palette"></i> Visual Customization</h5>
+                            
+                            <label class="form-label">Collection Color</label>
+                            <div class="color-picker">
+                                <div class="color-option selected" style="background-color: #007bff;" onclick="selectColor('#007bff')">
+                                    <input type="radio" name="color" value="#007bff" checked>
+                                </div>
+                                <div class="color-option" style="background-color: #28a745;" onclick="selectColor('#28a745')">
+                                    <input type="radio" name="color" value="#28a745">
+                                </div>
+                                <div class="color-option" style="background-color: #dc3545;" onclick="selectColor('#dc3545')">
+                                    <input type="radio" name="color" value="#dc3545">
+                                </div>
+                                <div class="color-option" style="background-color: #ffc107;" onclick="selectColor('#ffc107')">
+                                    <input type="radio" name="color" value="#ffc107">
+                                </div>
+                                <div class="color-option" style="background-color: #6f42c1;" onclick="selectColor('#6f42c1')">
+                                    <input type="radio" name="color" value="#6f42c1">
+                                </div>
+                                <div class="color-option" style="background-color: #fd7e14;" onclick="selectColor('#fd7e14')">
+                                    <input type="radio" name="color" value="#fd7e14">
+                                </div>
+                                <div class="color-option" style="background-color: #20c997;" onclick="selectColor('#20c997')">
+                                    <input type="radio" name="color" value="#20c997">
+                                </div>
+                                <div class="color-option" style="background-color: #e83e8c;" onclick="selectColor('#e83e8c')">
+                                    <input type="radio" name="color" value="#e83e8c">
+                                </div>
+                                <div class="color-option" style="background-color: #6c757d;" onclick="selectColor('#6c757d')">
+                                    <input type="radio" name="color" value="#6c757d">
+                                </div>
+                                <div class="color-option" style="background-color: #343a40;" onclick="selectColor('#343a40')">
+                                    <input type="radio" name="color" value="#343a40">
+                                </div>
+                            </div>
+                            <div class="form-text">Choose a color to help you identify this collection</div>
+                        </div>
+
+                        <!-- Preview -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-eye"></i> Preview</h5>
+                            <div class="card" style="border-left: 4px solid #007bff;" id="previewCard">
+                                <div class="card-body">
+                                    <h6 class="card-title" id="previewName">Collection Name</h6>
+                                    <p class="card-text text-muted" id="previewDescription">Collection description will appear here...</p>
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-light text-dark">0 Recipes</span>
+                                        <span class="badge bg-secondary">New</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('collections') }}" class="btn btn-secondary flex-fill">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="fas fa-save"></i> Create Collection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectColor(color) {
+    // Update radio button
+    document.querySelector(`input[value="${color}"]`).checked = true;
+    
+    // Update visual selection
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+    
+    // Update preview
+    document.getElementById('previewCard').style.borderLeftColor = color;
+}
+
+// Live preview updates
+document.getElementById('name').addEventListener('input', function() {
+    const previewName = document.getElementById('previewName');
+    previewName.textContent = this.value || 'Collection Name';
+});
+
+document.getElementById('description').addEventListener('input', function() {
+    const previewDescription = document.getElementById('previewDescription');
+    previewDescription.textContent = this.value || 'Collection description will appear here...';
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    if (!name) {
+        e.preventDefault();
+        alert('Please enter a collection name');
+        document.getElementById('name').focus();
+    }
+});
+</script>
+{% endblock %} 

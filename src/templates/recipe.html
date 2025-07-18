@@ -10,7 +10,40 @@
             <div class="card p-4 shadow-lg retro-card">
                 <!-- Recipe Header -->
                 <div class="text-center mb-4">
-                    <h1 class="display-4">{{ recipe.title }}</h1>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div></div> <!-- Spacer -->
+                        <h1 class="display-4">{{ recipe.title }}</h1>
+                        {% if current_user.is_authenticated %}
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-danger favorite-btn" 
+                                    data-recipe-id="{{ recipe.id }}"
+                                    id="favoriteBtn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="btn btn-outline-success"
+                                data-recipe-id="{{ recipe.id }}"
+                                data-recipe-title="{{ recipe.title }}"
+                                data-recipe-image="{{ recipe.image|default('') }}"
+                                onclick="openMealPlanModalFromButton(this)">
+                                <i class="fas fa-calendar-plus"></i> Add to Meal Plan
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-folder-plus"></i> Add to Collection
+                                </button>
+                                <ul class="dropdown-menu" id="collectionsDropdown">
+                                    <li><a class="dropdown-item" href="#" onclick="createNewCollection()">
+                                        <i class="fas fa-plus"></i> Create New Collection
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-muted" href="#" id="noCollections">
+                                        <i class="fas fa-info-circle"></i> No collections yet
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
                     {% if recipe.image %}
                     <div class="recipe-image-container my-4">
                         <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="img-fluid rounded">
@@ -20,24 +53,39 @@
 
                 <!-- Quick Info Cards -->
                 <div class="row mb-4 text-center">
-                    <div class="col-md-3 col-6 mb-3">
+                    <div class="col-md-2 col-4 mb-3">
                         <p class="mb-1">⏰</p>
                         <strong>{{ recipe.ready_in_minutes }} mins</strong>
                     </div>
-                    <div class="col-md-3 col-6 mb-3">
+                    <div class="col-md-2 col-4 mb-3">
                         <p class="mb-1">👥</p>
                         <strong>{{ recipe.servings }} Servings</strong>
                     </div>
-                    <div class="col-md-3 col-6 mb-3">
+                    <div class="col-md-2 col-4 mb-3">
+                        {% if avg_rating > 0 %}
+                        <p class="mb-1">⭐</p>
+                        <strong>{{ avg_rating }}/5 ({{ total_ratings }})</strong>
+                        {% else %}
+                        <p class="mb-1">⭐</p>
+                        <strong>No ratings</strong>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 col-4 mb-3">
                         {% if recipe.vegetarian %}
                         <p class="mb-1">🥬</p>
                         <strong>Vegetarian</strong>
                         {% endif %}
                     </div>
-                    <div class="col-md-3 col-6 mb-3">
+                    <div class="col-md-2 col-4 mb-3">
                         {% if recipe.gluten_free %}
                         <p class="mb-1">🌾</p>
                         <strong>Gluten-Free</strong>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 col-4 mb-3">
+                        {% if recipe.vegan %}
+                        <p class="mb-1">🌱</p>
+                        <strong>Vegan</strong>
                         {% endif %}
                     </div>
                 </div>
@@ -75,6 +123,102 @@
                         </ol>
                     </div>
                 </div>
+
+                <!-- Ratings Section -->
+                {% if current_user.is_authenticated %}
+                <div class="ratings-section mb-4 p-3" style="background-color: #f8f9fa; border-radius: 8px;">
+                    <h4 class="mb-3">Rate this Recipe</h4>
+                    <div class="star-rating mb-3">
+                        <span class="star" data-rating="1">⭐</span>
+                        <span class="star" data-rating="2">⭐</span>
+                        <span class="star" data-rating="3">⭐</span>
+                        <span class="star" data-rating="4">⭐</span>
+                        <span class="star" data-rating="5">⭐</span>
+                        <span class="rating-text ms-2">Click to rate</span>
+                    </div>
+                    <textarea class="form-control mb-3" id="reviewText" placeholder="Write a review (optional)" rows="3"></textarea>
+                    <button class="btn btn-primary" id="submitRating">Submit Rating</button>
+                </div>
+                {% endif %}
+
+                <!-- Recent Reviews -->
+                {% if ratings %}
+                <div class="reviews-section mb-4">
+                    <h4 class="mb-3">Recent Reviews</h4>
+                    {% for rating in ratings %}
+                    <div class="review-item mb-3 p-3" style="background-color: #f8f9fa; border-radius: 8px;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ rating.user.username }}</strong>
+                                <div class="stars">
+                                    {% for i in range(rating.rating) %}⭐{% endfor %}
+                                    {% for i in range(5 - rating.rating) %}☆{% endfor %}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ rating.created_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        {% if rating.review %}
+                        <p class="mt-2 mb-0">{{ rating.review }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Nutritional Information -->
+                {% if recipe.nutrition %}
+                <div class="nutrition-section mb-4">
+                    <h4 class="mb-3">Nutritional Information</h4>
+                    <div class="row text-center">
+                        {% if recipe.nutrition.calories %}
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="nutrition-item p-2" style="background-color: #e3f2fd; border-radius: 8px;">
+                                <strong>{{ recipe.nutrition.calories }}</strong>
+                                <div>Calories</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if recipe.nutrition.protein %}
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="nutrition-item p-2" style="background-color: #f3e5f5; border-radius: 8px;">
+                                <strong>{{ recipe.nutrition.protein }}g</strong>
+                                <div>Protein</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if recipe.nutrition.carbs %}
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="nutrition-item p-2" style="background-color: #e8f5e8; border-radius: 8px;">
+                                <strong>{{ recipe.nutrition.carbs }}g</strong>
+                                <div>Carbs</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if recipe.nutrition.fat %}
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="nutrition-item p-2" style="background-color: #fff3e0; border-radius: 8px;">
+                                <strong>{{ recipe.nutrition.fat }}g</strong>
+                                <div>Fat</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Cooking Tips -->
+                {% if recipe.tips %}
+                <div class="tips-section mb-4">
+                    <h4 class="mb-3">💡 Cooking Tips</h4>
+                    <div class="alert alert-info">
+                        <ul class="mb-0">
+                            {% for tip in recipe.tips %}
+                            <li>{{ tip }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -107,4 +251,221 @@
         </a>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const favoriteBtn = document.getElementById('favoriteBtn');
+    if (!favoriteBtn) return;
+    
+    const recipeId = favoriteBtn.dataset.recipeId;
+    
+    // Check if recipe is already favorited
+    fetch(`/check-favorite/${recipeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.is_favorite) {
+                favoriteBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                favoriteBtn.classList.remove('btn-outline-danger');
+                favoriteBtn.classList.add('btn-danger');
+            }
+        })
+        .catch(error => console.error('Error checking favorite status:', error));
+    
+    // Handle favorite button click
+    favoriteBtn.addEventListener('click', function() {
+        fetch(`/favorite/${recipeId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                recipe_title: {{ recipe.title|tojson }},
+                recipe_image: {{ recipe.image|default('')|tojson }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'added') {
+                favoriteBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                favoriteBtn.classList.remove('btn-outline-danger');
+                favoriteBtn.classList.add('btn-danger');
+                showToast('Recipe added to favorites!', 'success');
+            } else if (data.status === 'removed') {
+                favoriteBtn.innerHTML = '<i class="far fa-heart"></i>';
+                favoriteBtn.classList.remove('btn-danger');
+                favoriteBtn.classList.add('btn-outline-danger');
+                showToast('Recipe removed from favorites!', 'info');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating favorite. Please try again.', 'error');
+        });
+    });
+    
+    // Load user collections for dropdown
+    loadUserCollections();
+    
+    function showToast(message, type) {
+        // Create a simple toast notification
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = message;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+});
+
+// Collections functionality
+function loadUserCollections() {
+    fetch('/collections')
+        .then(response => response.text())
+        .then(html => {
+            // Parse the HTML to extract collections
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const collectionCards = doc.querySelectorAll('.collection-card');
+            
+            const dropdown = document.getElementById('collectionsDropdown');
+            const noCollections = document.getElementById('noCollections');
+            
+            if (collectionCards.length > 0) {
+                noCollections.style.display = 'none';
+                
+                collectionCards.forEach(card => {
+                    const collectionName = card.querySelector('.card-title').textContent;
+                    const collectionId = card.querySelector('a[href*="/collections/"]').href.split('/').pop();
+                    
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <a class="dropdown-item" href="#" onclick="addToCollection(${collectionId})">
+                            <i class="fas fa-folder"></i> ${collectionName}
+                        </a>
+                    `;
+                    dropdown.insertBefore(listItem, noCollections.parentNode);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading collections:', error));
+}
+
+function addToCollection(collectionId) {
+    const recipeId = {{ recipe.id }};
+    
+    fetch(`/collections/${collectionId}/add/${recipeId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'added') {
+            showToast('Recipe added to collection!', 'success');
+        } else {
+            showToast(data.error || 'Error adding to collection', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error adding to collection. Please try again.', 'error');
+    });
+}
+
+function createNewCollection() {
+    window.location.href = '/collections/create';
+}
+
+// Rating system
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star');
+    const ratingText = document.querySelector('.rating-text');
+    const submitBtn = document.getElementById('submitRating');
+    const reviewText = document.getElementById('reviewText');
+    let selectedRating = 0;
+    
+    if (!stars.length) return;
+    
+    // Check if user has already rated
+    fetch(`/check-rating/{{ recipe.id }}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_rated) {
+                selectedRating = data.rating;
+                updateStars(selectedRating);
+                ratingText.textContent = `You rated this ${selectedRating} stars`;
+                if (data.review) {
+                    reviewText.value = data.review;
+                }
+            }
+        })
+        .catch(error => console.error('Error checking rating:', error));
+    
+    // Star hover effects
+    stars.forEach((star, index) => {
+        star.addEventListener('mouseenter', () => {
+            updateStars(index + 1);
+        });
+        
+        star.addEventListener('mouseleave', () => {
+            updateStars(selectedRating);
+        });
+        
+        star.addEventListener('click', () => {
+            selectedRating = index + 1;
+            updateStars(selectedRating);
+            ratingText.textContent = `You selected ${selectedRating} stars`;
+        });
+    });
+    
+    // Submit rating
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            if (selectedRating === 0) {
+                alert('Please select a rating first!');
+                return;
+            }
+            
+            fetch(`/rate/{{ recipe.id }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    rating: selectedRating,
+                    review: reviewText.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    showToast(data.message, 'success');
+                    // Reload page to show updated ratings
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error submitting rating. Please try again.', 'error');
+            });
+        });
+    }
+    
+    function updateStars(count) {
+        stars.forEach((star, index) => {
+            if (index < count) {
+                star.style.color = '#ffc107';
+            } else {
+                star.style.color = '#ccc';
+            }
+        });
+    }
+});
+</script>
 {% endblock %} 

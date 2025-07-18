@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}My Favorites - SpoonAPI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-heart text-danger"></i> My Favorite Recipes</h1>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-search"></i> Search More Recipes
+                </a>
+            </div>
+            
+            {% if favorites %}
+                <div class="row">
+                    {% for favorite in favorites %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 recipe-card">
+                            <img src="{{ favorite.recipe_image or '/static/images/placeholder.jpg' }}" 
+                                 class="card-img-top" alt="{{ favorite.recipe_title }}"
+                                 style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ favorite.recipe_title }}</h5>
+                                <p class="card-text text-muted">
+                                    <small>
+                                        <i class="fas fa-calendar"></i> Added {{ favorite.added_at.strftime('%B %d, %Y') }}
+                                    </small>
+                                </p>
+                                <div class="mt-auto">
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{{ url_for('recipe', recipe_id=favorite.recipe_id) }}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> View Recipe
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm favorite-btn" 
+                                                data-recipe-id="{{ favorite.recipe_id }}"
+                                                data-is-favorite="true">
+                                            <i class="fas fa-heart"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        You have {{ favorites|length }} favorite recipe{{ 's' if favorites|length != 1 else '' }}
+                    </p>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+                    <h3>No favorites yet!</h3>
+                    <p class="text-muted">
+                        Start exploring recipes and save your favorites to see them here.
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search Recipes
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Handle favorite button clicks
+document.addEventListener('DOMContentLoaded', function() {
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const recipeId = this.dataset.recipeId;
+            const isFavorite = this.dataset.isFavorite === 'true';
+            
+            fetch(`/favorite/${recipeId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'removed') {
+                    // Remove the card from the page
+                    const card = this.closest('.col-md-6');
+                    card.style.transition = 'opacity 0.3s ease';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // Check if no more favorites
+                        const remainingCards = document.querySelectorAll('.recipe-card');
+                        if (remainingCards.length === 0) {
+                            location.reload(); // Reload to show empty state
+                        }
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating favorite. Please try again.');
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

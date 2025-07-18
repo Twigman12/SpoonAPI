@@ -2,170 +2,354 @@
 
 {% block title %}Recipe Search - Find Your Next Meal{% endblock %}
 
+{% block extra_css %}
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#ff6b6b">
+{% endblock %}
+
 {% block content %}
-<div class="row">
+<div class="main-content-flex">
     <!-- Search and Filters -->
-    <div class="col-md-4">
+    <div class="search-panel">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Search Recipes</h5>
+                
+                <!-- Quick Actions -->
+                {% if current_user.is_authenticated %}
+                <div class="mb-3">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadFavorites()">
+                            <i class="fas fa-heart"></i> Favorites
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.location.href='/meal-plan'">
+                            <i class="fas fa-calendar"></i> Meal Plan
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <form id="searchForm" class="mb-4">
-                    <!-- Search Input -->
+                    <!-- Enhanced Search Input with Autocomplete -->
                     <div class="mb-3">
                         <label for="query" class="form-label">Recipe or Ingredient</label>
-                        <input type="text" class="form-control" id="query" name="query" required>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="query" name="query" 
+                                   required autocomplete="off" placeholder="e.g., chicken curry">
+                            <button class="btn btn-outline-secondary" type="button" onclick="getRandomRecipe()" title="Get a random recipe with a dad joke!">
+                                <i class="fas fa-dice"></i>
+                            </button>
+                        </div>
+                        <div id="autocompleteResults" class="autocomplete-results"></div>
                     </div>
 
-                    <!-- Diet Filter -->
-                    <div class="mb-3">
-                        <label for="diet" class="form-label">Diet</label>
-                        <select class="form-select" id="diet" name="diet">
-                            <option value="none">No specific diet</option>
-                            {% for diet in diets %}
-                            <option value="{{ diet }}">{{ diet|title }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <!-- Enhanced Filters -->
+                    <div class="accordion" id="filtersAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dietFilters">
+                                    Diet & Intolerances
+                                </button>
+                            </h2>
+                            <div id="dietFilters" class="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                                <div class="accordion-body">
+                                    <!-- Diet Filter -->
+                                    <div class="mb-3">
+                                        <label for="diet" class="form-label">Diet</label>
+                                        <select class="form-select" id="diet" name="diet">
+                                            <option value="none">No specific diet</option>
+                                            {% for diet in diets %}
+                                            <option value="{{ diet }}">{{ diet|title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
 
-                    <!-- Intolerances -->
-                    <div class="mb-3">
-                        <label class="form-label">Intolerances</label>
-                        <div class="row">
-                            {% for intolerance in intolerances %}
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="intolerances" 
-                                           value="{{ intolerance }}" id="intolerance_{{ loop.index }}">
-                                    <label class="form-check-label" for="intolerance_{{ loop.index }}">
-                                        {{ intolerance|title }}
-                                    </label>
+                                    <!-- Intolerances -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Intolerances</label>
+                                        <div class="row">
+                                            {% for intolerance in intolerances %}
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="intolerances" 
+                                                           value="{{ intolerance }}" id="intolerance_{{ loop.index }}">
+                                                    <label class="form-check-label" for="intolerance_{{ loop.index }}">
+                                                        {{ intolerance|title }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
-                    </div>
 
-                    <!-- Cooking Time -->
-                    <div class="mb-3">
-                        <label for="difficulty" class="form-label">Cooking Time</label>
-                        <select class="form-select mb-2" id="difficulty" name="difficulty">
-                            <option value="none">No time preference</option>
-                            <option value="easy">Easy (up to 30 minutes)</option>
-                            <option value="medium">Medium (up to 60 minutes)</option>
-                            <option value="hard">Hard (up to 120 minutes)</option>
-                            <option value="custom">Custom time</option>
-                        </select>
-                        <div id="customTimeInput" class="d-none">
-                            <input type="number" class="form-control" name="max_time" 
-                                   placeholder="Maximum minutes" min="1" max="300">
-                        </div>
-                    </div>
-
-                    <!-- Calorie Range -->
-                    <div class="mb-3">
-                        <label class="form-label">Calorie Range (per serving)</label>
-                        <div class="row">
-                            <div class="col-6">
-                                <input type="number" class="form-control" name="min_calories" 
-                                       placeholder="Min calories" min="0">
-                            </div>
-                            <div class="col-6">
-                                <input type="number" class="form-control" name="max_calories" 
-                                       placeholder="Max calories" min="0">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#timeFilters">
+                                    Time & Difficulty
+                                </button>
+                            </h2>
+                            <div id="timeFilters" class="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <label for="difficulty" class="form-label">Difficulty Level</label>
+                                        <select class="form-select" id="difficulty" name="difficulty">
+                                            <option value="custom">Custom time</option>
+                                            {% for level, time in difficulty_levels.items() %}
+                                            <option value="{{ level }}">{{ level|title }} ({{ time }} min)</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-3" id="customTimeDiv" style="display: none;">
+                                        <label for="max_time" class="form-label">Maximum Cooking Time (minutes)</label>
+                                        <input type="number" class="form-control" id="max_time" name="max_time" min="1" max="300">
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#calorieFilters">
+                                    Calories
+                                </button>
+                            </h2>
+                            <div id="calorieFilters" class="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="min_calories" class="form-label">Min Calories</label>
+                                            <input type="number" class="form-control" id="min_calories" name="min_calories" min="0">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="max_calories" class="form-label">Max Calories</label>
+                                            <input type="number" class="form-control" id="max_calories" name="max_calories" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Search Recipes</button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Search Recipes
+                    </button>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Results -->
-    <div class="col-md-8">
-        <div id="searchResults" class="row g-4">
-            <!-- Results will be populated here -->
+    <!-- Results Area -->
+    <div class="recipe-results">
+        <div id="resultsArea">
+            <div class="text-center text-muted">
+                <i class="fas fa-utensils fa-3x mb-3"></i>
+                <h4>Search for recipes to get started</h4>
+                <p>Try searching for ingredients, cuisines, or dish names</p>
+            </div>
         </div>
-        <div id="noResults" class="alert alert-info d-none" role="alert">
-            No recipes found. Try different search terms or filters.
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Searching for recipes...</p>
         </div>
-        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+        <!-- Results Container -->
+        <div id="resultsContainer" style="display: none;">
+            <div class="row" id="recipeResults"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchForm = document.getElementById('searchForm');
-    const difficultySelect = document.getElementById('difficulty');
-    const customTimeInput = document.getElementById('customTimeInput');
-    const resultsContainer = document.getElementById('searchResults');
-    const noResultsMessage = document.getElementById('noResults');
-    const errorMessage = document.getElementById('errorMessage');
+// Filter functionality
+document.getElementById('difficulty').addEventListener('change', function() {
+    const customTimeDiv = document.getElementById('customTimeDiv');
+    if (this.value === 'custom') {
+        customTimeDiv.style.display = 'block';
+    } else {
+        customTimeDiv.style.display = 'none';
+    }
+});
 
-    // Toggle custom time input
-    difficultySelect.addEventListener('change', function() {
-        customTimeInput.classList.toggle('d-none', this.value !== 'custom');
+// Search form submission
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    performSearch();
+});
+
+function performSearch() {
+    const formData = new FormData(document.getElementById('searchForm'));
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultsArea = document.getElementById('resultsArea');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    loadingSpinner.style.display = 'block';
+    resultsArea.style.display = 'none';
+    resultsContainer.style.display = 'none';
+    
+    fetch('/search', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingSpinner.style.display = 'none';
+        if (data.error) {
+            resultsArea.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            resultsArea.style.display = 'block';
+        } else {
+            displayResults(data.recipes);
+        }
+    })
+    .catch(error => {
+        loadingSpinner.style.display = 'none';
+        resultsArea.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+        resultsArea.style.display = 'block';
     });
+}
 
-    // Handle form submission
-    searchForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
+function displayResults(recipes) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    const recipeResults = document.getElementById('recipeResults');
+    
+    if (!recipes || recipes.length === 0) {
+        recipeResults.innerHTML = '<div class="col-12"><div class="alert alert-info">No recipes found. Try different search terms.</div></div>';
+    } else {
+        recipeResults.innerHTML = recipes.map(recipe => `
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 recipe-card">
+                    <img src="${recipe.image || '/static/images/placeholder.jpg'}" class="card-img-top" alt="${recipe.title}">
+                    <div class="card-body">
+                        <h5 class="card-title">${recipe.title}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> ${recipe.ready_in_minutes} min
+                                <i class="fas fa-users ms-2"></i> ${recipe.servings} servings
+                            </small>
+                        </p>
+                        <a href="/recipe/${recipe.id}" class="btn btn-primary btn-sm">View Recipe</a>
+                        ${window.isAuthenticated ? `<button class="btn btn-outline-success btn-sm ms-2" onclick="openMealPlanModal(${recipe.id}, '${recipe.title.replace(/'/g, "&#39;")}', '${recipe.image || ''}')"><i class='fas fa-calendar-plus'></i> Add to Meal Plan</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    resultsContainer.style.display = 'block';
+}
+
+function getRandomRecipe() {
+    const formData = new FormData(document.getElementById('searchForm'));
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultsArea = document.getElementById('resultsArea');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    loadingSpinner.style.display = 'block';
+    resultsArea.style.display = 'none';
+    resultsContainer.style.display = 'none';
+    
+    fetch('/random-recipe', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingSpinner.style.display = 'none';
         
-        // Clear previous results and messages
-        resultsContainer.innerHTML = '';
-        noResultsMessage.classList.add('d-none');
-        errorMessage.classList.add('d-none');
+        // Show the dad joke first
+        const jokeAlert = document.createElement('div');
+        jokeAlert.className = 'alert alert-info alert-dismissible fade show dad-joke-alert';
+        jokeAlert.innerHTML = `
+            <strong>🎲</strong> ${data.dad_joke}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
         
-        // Show loading state
-        resultsContainer.innerHTML = '<div class="col-12 text-center"><div class="spinner-border" role="status"></div></div>';
+        // Insert joke at the top of results area
+        const resultsArea = document.getElementById('resultsArea');
+        resultsArea.innerHTML = '';
+        resultsArea.appendChild(jokeAlert);
+        resultsArea.style.display = 'block';
         
-        try {
-            const formData = new FormData(this);
-            const response = await fetch('/search', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to search recipes');
-            }
-            
-            // Clear loading state
-            resultsContainer.innerHTML = '';
-            
-            if (data.recipes && data.recipes.length > 0) {
-                data.recipes.forEach(recipe => {
-                    resultsContainer.innerHTML += `
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100">
-                                <img src="${recipe.image}" class="card-img-top" alt="${recipe.title}">
-                                <div class="card-body">
-                                    <h5 class="card-title">${recipe.title}</h5>
-                                    <p class="card-text">Ready in ${recipe.ready_in_minutes} minutes</p>
-                                    <div class="mb-2">
-                                        ${recipe.vegetarian ? '<span class="badge bg-success me-1">Vegetarian</span>' : ''}
-                                        ${recipe.vegan ? '<span class="badge bg-success me-1">Vegan</span>' : ''}
-                                        ${recipe.gluten_free ? '<span class="badge bg-info">Gluten-free</span>' : ''}
-                                    </div>
-                                    <a href="/recipe/${recipe.id}" class="btn btn-primary">View Recipe</a>
+        if (data.success && data.recipe) {
+            // Display the random recipe
+            displayRandomRecipe(data.recipe);
+        } else {
+            // Show error message
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-warning';
+            errorAlert.innerHTML = `<strong>Oops!</strong> ${data.error}`;
+            resultsArea.appendChild(errorAlert);
+        }
+    })
+    .catch(error => {
+        loadingSpinner.style.display = 'none';
+        resultsArea.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+        resultsArea.style.display = 'block';
+    });
+}
+
+function displayRandomRecipe(recipe) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    const recipeResults = document.getElementById('recipeResults');
+    
+    recipeResults.innerHTML = `
+        <div class="col-12">
+            <div class="card recipe-card random-recipe-card">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="${recipe.image || '/static/images/placeholder.jpg'}" 
+                             class="img-fluid rounded-start h-100" 
+                             style="object-fit: cover;" 
+                             alt="${recipe.title}">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h3 class="card-title">${recipe.title}</h3>
+                            <p class="card-text">${recipe.summary || 'A delicious recipe for you to try!'}</p>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> ${recipe.ready_in_minutes} min
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users"></i> ${recipe.servings} servings
+                                    </small>
                                 </div>
                             </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="/recipe/${recipe.id}" class="btn btn-primary">
+                                    <i class="fas fa-utensils"></i> View Full Recipe
+                                </a>
+                                <button class="btn btn-outline-secondary" onclick="getRandomRecipe()">
+                                    <i class="fas fa-dice"></i> Try Another Random Recipe
+                                </button>
+                            </div>
                         </div>
-                    `;
-                });
-            } else {
-                noResultsMessage.classList.remove('d-none');
-            }
-        } catch (error) {
-            errorMessage.textContent = error.message;
-            errorMessage.classList.remove('d-none');
-        }
-    });
-});
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    resultsContainer.style.display = 'block';
+}
+
+function loadFavorites() {
+    window.location.href = '/favorites';
+}
+
+function loadMealPlan() {
+    // Placeholder for meal plan functionality
+    alert('Meal plan feature coming soon!');
+}
 </script>
-{% endblock %} 
+{% endblock %}
+
+   

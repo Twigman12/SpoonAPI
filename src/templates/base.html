@@ -6,6 +6,8 @@
     <title>{% block title %}Recipe Search{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
@@ -17,15 +19,106 @@
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 🍳 Retro Recipe Search
             </a>
-            <div class="ms-auto">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('food_culture') }}">Popular Recipes</a>
-                    </li>
-                </ul>
+            
+            <!-- Hamburger Menu Button (visible on mobile) -->
+            <button class="navbar-toggler hamburger-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Desktop/Tablet Navigation: Dropdown Menu -->
+            <div class="d-none d-lg-block ms-auto">
+                <div class="nav-item dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle px-4 py-2" id="mainNavDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bars"></i> Menu
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end retro-dropdown" aria-labelledby="mainNavDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('food_news') }}"><i class="fas fa-newspaper"></i> Food News</a></li>
+                        {% if current_user.is_authenticated %}
+                        <li><a class="dropdown-item" href="{{ url_for('favorites.favorites') }}"><i class="fas fa-heart"></i> Favorites</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('collections') }}"><i class="fas fa-folder"></i> Collections</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('meal_plan') }}"><i class="fas fa-calendar"></i> Meal Plan</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('preferences') }}"><i class="fas fa-cog"></i> Preferences</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout ({{ current_user.username }})</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('auth.register') }}"><i class="fas fa-user-plus"></i> Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
+
+    <!-- Sidebar Menu (Mobile) -->
+    <div class="offcanvas offcanvas-start sidebar-menu" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel">
+                <i class="fas fa-utensils"></i> Menu
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="sidebar-nav">
+                <div class="sidebar-section">
+                    <h6 class="sidebar-section-title">
+                        <i class="fas fa-fire"></i> Discover
+                    </h6>
+                    <a class="sidebar-link" href="{{ url_for('index') }}">
+                        <i class="fas fa-search"></i> Search Recipes
+                    </a>
+                    <a class="sidebar-link" href="{{ url_for('food_news') }}">
+                        <i class="fas fa-newspaper"></i> Food News
+                    </a>
+                </div>
+                
+                {% if current_user.is_authenticated %}
+                <div class="sidebar-section">
+                    <h6 class="sidebar-section-title">
+                        <i class="fas fa-user"></i> My Account
+                    </h6>
+                    <a class="sidebar-link" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="sidebar-link" href="{{ url_for('favorites.favorites') }}">
+                        <i class="fas fa-heart"></i> Favorites
+                    </a>
+                    <a class="sidebar-link" href="{{ url_for('collections') }}">
+                        <i class="fas fa-folder"></i> Collections
+                    </a>
+                    <a class="sidebar-link" href="{{ url_for('meal_plan') }}">
+                        <i class="fas fa-calendar"></i> Meal Plan
+                    </a>
+                    <a class="sidebar-link" href="{{ url_for('preferences') }}">
+                        <i class="fas fa-cog"></i> Preferences
+                    </a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h6 class="sidebar-section-title">
+                        <i class="fas fa-user-circle"></i> {{ current_user.username }}
+                    </h6>
+                    <a class="sidebar-link sidebar-link-danger" href="{{ url_for('auth.logout') }}">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+                {% else %}
+                <div class="sidebar-section">
+                    <h6 class="sidebar-section-title">
+                        <i class="fas fa-sign-in-alt"></i> Account
+                    </h6>
+                    <a class="sidebar-link" href="{{ url_for('auth.login') }}">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a class="sidebar-link" href="{{ url_for('auth.register') }}">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
     <!-- Retro Pattern -->
     <div class="retro-pattern"></div>
@@ -38,7 +131,7 @@
     <!-- Footer -->
     <footer class="footer mt-auto py-3">
         <div class="container text-center">
-            <span class="text-muted">⭐ Powered by Spoonacular API ⭐</span>
+            
         </div>
     </footer>
 
@@ -53,6 +146,47 @@
                 audio.volume = 0.1;
                 audio.play().catch(() => {}); // Ignore autoplay restrictions
             });
+        });
+        // Force Bootstrap dropdown initialization (in case of JS loading order issues)
+        document.addEventListener('DOMContentLoaded', function() {
+            var dropdownToggle = document.getElementById('mainNavDropdown');
+            if (dropdownToggle) {
+                new bootstrap.Dropdown(dropdownToggle);
+            }
+            // Sidebar menu enhancements
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+            
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebarMenu');
+                    if (sidebar && window.innerWidth < 992) {
+                        const offcanvas = bootstrap.Offcanvas.getInstance(sidebar);
+                        if (offcanvas) {
+                            offcanvas.hide();
+                        }
+                    }
+                });
+            });
+            
+            // Add retro effect to hamburger menu
+            const hamburger = document.querySelector('.hamburger-menu');
+            if (hamburger) {
+                hamburger.addEventListener('click', function() {
+                    this.style.transform = 'rotate(90deg)';
+                    setTimeout(() => {
+                        this.style.transform = 'rotate(0deg)';
+                    }, 300);
+                });
+            }
         });
     </script>
     {% block extra_js %}{% endblock %}

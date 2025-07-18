@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Recipe Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Login</h5>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="fillTestCredentials()">
+                            <i class="fas fa-user-secret"></i> Use Test Account
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+                    <p class="text-muted small">
+                        <a href="{{ url_for('create_test_users') }}" class="text-decoration-none">
+                            <i class="fas fa-plus-circle"></i> Create Test User
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillTestCredentials() {
+    document.getElementById('username').value = 'testuser';
+    document.getElementById('password').value = 'testpass123';
+    
+    // Add a visual feedback
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Credentials Filled!';
+    button.classList.remove('btn-outline-secondary');
+    button.classList.add('btn-success');
+    
+    // Reset button after 2 seconds
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
+
+{% endblock %} 

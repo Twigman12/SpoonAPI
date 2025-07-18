@@ -45,7 +45,7 @@ class NewsParser:
             print(f"Error fetching news from The Guardian API: {e}")
             return []
 
-    def fetch_popular_recipe_articles(self, page_size: int = 10) -> List[Dict[str, Any]]:
+    def fetch_popular_recipe_articles(self, page_size: int = 20) -> List[Dict[str, Any]]:
         """
         Fetch articles about popular, trending, or featured recipes.
         
@@ -55,8 +55,8 @@ class NewsParser:
         Returns:
             List[Dict[str, Any]]: A list of articles about popular recipes.
         """
-        # Search for articles about popular/trending recipes
-        query = "popular recipes OR trending recipes OR best recipes OR recipe of the day"
+        # Broaden the search query to just 'recipes' for more results
+        query = "recipes"
         params = {
             "q": query,
             "api-key": self.api_key,

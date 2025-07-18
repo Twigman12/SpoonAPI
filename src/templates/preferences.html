@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}User Preferences{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1><i class="fas fa-cog"></i> User Preferences</h1>
+                <p class="text-muted">Customize your recipe search experience</p>
+            </div>
+
+            <!-- Preferences Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Dietary Preferences -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-apple-alt"></i> Dietary Preferences</h5>
+                            <div class="mb-3">
+                                <label for="diet" class="form-label">Diet Type</label>
+                                <select class="form-select" id="diet" name="diet">
+                                    <option value="">No specific diet</option>
+                                    {% for diet in diets %}
+                                    <option value="{{ diet }}" {% if user_pref and user_pref.diet == diet %}selected{% endif %}>
+                                        {{ diet.title() }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Choose a specific diet to filter recipes</div>
+                            </div>
+                        </div>
+
+                        <!-- Food Intolerances -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Food Intolerances</h5>
+                            <p class="text-muted">Select any foods you need to avoid:</p>
+                            <div class="row">
+                                {% for intolerance in intolerances %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="intolerances" value="{{ intolerance }}" 
+                                               id="intolerance_{{ loop.index }}"
+                                               {% if user_pref and user_pref.intolerances and intolerance in user_pref.intolerances %}checked{% endif %}>
+                                        <label class="form-check-label" for="intolerance_{{ loop.index }}">
+                                            {{ intolerance.title() }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Cooking Time Preferences -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-clock"></i> Cooking Time Preferences</h5>
+                            <div class="mb-3">
+                                <label for="max_cooking_time" class="form-label">Maximum Cooking Time (minutes)</label>
+                                <input type="number" class="form-control" id="max_cooking_time" 
+                                       name="max_cooking_time" min="15" max="180" step="15"
+                                       value="{{ user_pref.max_cooking_time if user_pref and user_pref.max_cooking_time else '' }}"
+                                       placeholder="e.g., 30">
+                                <div class="form-text">Only show recipes that can be prepared within this time</div>
+                            </div>
+                        </div>
+
+                        <!-- Calorie Preferences -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-fire"></i> Calorie Preferences</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="calorie_range_min" class="form-label">Minimum Calories</label>
+                                    <input type="number" class="form-control" id="calorie_range_min" 
+                                           name="calorie_range_min" min="0" max="2000" step="50"
+                                           value="{{ user_pref.calorie_range_min if user_pref and user_pref.calorie_range_min else '' }}"
+                                           placeholder="e.g., 200">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="calorie_range_max" class="form-label">Maximum Calories</label>
+                                    <input type="number" class="form-control" id="calorie_range_max" 
+                                           name="calorie_range_max" min="0" max="2000" step="50"
+                                           value="{{ user_pref.calorie_range_max if user_pref and user_pref.calorie_range_max else '' }}"
+                                           placeholder="e.g., 600">
+                                </div>
+                            </div>
+                            <div class="form-text">Filter recipes by calorie range (optional)</div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Save Preferences
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Current Preferences Summary -->
+            {% if user_pref %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Current Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Diet:</strong>
+                            <span class="badge bg-success">{{ user_pref.diet|title if user_pref.diet else 'None' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Max Cooking Time:</strong>
+                            <span class="badge bg-info">{{ user_pref.max_cooking_time }} min</span>
+                        </div>
+                    </div>
+                    
+                    {% if user_pref.intolerances %}
+                    <div class="mt-2">
+                        <strong>Intolerances:</strong><br>
+                        {% for intolerance in user_pref.intolerances %}
+                        <span class="badge bg-warning me-1">{{ intolerance|title }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if user_pref.calorie_range_min or user_pref.calorie_range_max %}
+                    <div class="mt-2">
+                        <strong>Calorie Range:</strong>
+                        <span class="badge bg-secondary">
+                            {{ user_pref.calorie_range_min or 0 }} - {{ user_pref.calorie_range_max or '∞' }} cal
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-question-circle"></i> How Preferences Work</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i>
+                            <strong>Diet Type:</strong> Filters recipes to match your dietary requirements
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i>
+                            <strong>Intolerances:</strong> Excludes recipes containing ingredients you can't eat
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i>
+                            <strong>Cooking Time:</strong> Shows only recipes that fit your time constraints
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i>
+                            <strong>Calorie Range:</strong> Helps you find recipes within your nutritional goals
+                        </li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        <small>Your preferences will be automatically applied to all recipe searches.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const minCalories = parseInt(document.getElementById('calorie_range_min').value) || 0;
+    const maxCalories = parseInt(document.getElementById('calorie_range_max').value) || 0;
+    
+    if (maxCalories > 0 && minCalories > maxCalories) {
+        e.preventDefault();
+        alert('Minimum calories cannot be greater than maximum calories');
+        document.getElementById('calorie_range_min').focus();
+        return false;
+    }
+    
+    const maxTime = parseInt(document.getElementById('max_cooking_time').value) || 0;
+    if (maxTime > 0 && (maxTime < 15 || maxTime > 180)) {
+        e.preventDefault();
+        alert('Maximum cooking time must be between 15 and 180 minutes');
+        document.getElementById('max_cooking_time').focus();
+        return false;
+    }
+});
+
+// Auto-save indicator
+let formChanged = false;
+document.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('change', () => {
+        formChanged = true;
+    });
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+{% endblock %} 

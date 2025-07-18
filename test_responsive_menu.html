@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Menu Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Test styles to simulate the responsive behavior */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .responsive-test {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+        }
+        
+        .screen-size {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .menu-status {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🍔 Responsive Hamburger Menu Test</h1>
+        
+        <div class="responsive-test">
+            <h3>Current Screen Size: <span class="screen-size" id="screenSize">Loading...</span></h3>
+            <p><strong>Menu Status:</strong> <span class="menu-status" id="menuStatus">Loading...</span></p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Desktop Navigation (≥992px):</h4>
+                    <ul>
+                        <li>Horizontal menu items visible</li>
+                        <li>Hamburger menu hidden</li>
+                        <li>Full navigation bar</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4>Mobile Navigation (<992px):</h4>
+                    <ul>
+                        <li>Hamburger menu visible</li>
+                        <li>Sidebar navigation</li>
+                        <li>Collapsible menu</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4>Test Instructions:</h4>
+                <ol>
+                    <li>Resize your browser window to test responsive behavior</li>
+                    <li>On mobile size, click the hamburger menu to open sidebar</li>
+                    <li>Test navigation links in the sidebar</li>
+                    <li>Verify the menu closes when clicking links on mobile</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="alert alert-info">
+            <strong>Note:</strong> This is a test page. The actual hamburger menu is implemented in the main application.
+        </div>
+    </div>
+
+    <script>
+        function updateScreenInfo() {
+            const width = window.innerWidth;
+            const screenSizeElement = document.getElementById('screenSize');
+            const menuStatusElement = document.getElementById('menuStatus');
+            
+            screenSizeElement.textContent = `${width}px`;
+            
+            if (width >= 992) {
+                menuStatusElement.textContent = 'Desktop Navigation (Horizontal Menu)';
+                menuStatusElement.style.color = '#007bff';
+            } else {
+                menuStatusElement.textContent = 'Mobile Navigation (Hamburger Menu)';
+                menuStatusElement.style.color = '#ffc107';
+            }
+        }
+        
+        // Update on load and resize
+        window.addEventListener('load', updateScreenInfo);
+        window.addEventListener('resize', updateScreenInfo);
+    </script>
+</body>
+</html> 

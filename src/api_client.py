@@ -237,4 +237,62 @@ class SpoonacularClient:
         params = {
             "food": food
         }
+        return self._make_request(endpoint, params)
+
+    def get_random_recipes(self, 
+                          number: int = 1,
+                          tags: Optional[List[str]] = None,
+                          diet: Optional[str] = None,
+                          intolerances: Optional[List[str]] = None,
+                          max_ready_time: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Get random recipes from the Spoonacular API.
+        
+        This method uses the /recipes/random endpoint to fetch random recipes
+        with optional filtering by tags, diet, intolerances, and cooking time.
+        
+        Args:
+            number (int, optional): Number of random recipes to return. Defaults to 1.
+            tags (List[str], optional): List of tags to filter by (e.g., ["vegetarian", "dessert"])
+            diet (str, optional): Specific diet (e.g., "vegetarian", "vegan")
+            intolerances (List[str], optional): List of intolerances
+            max_ready_time (int, optional): Maximum total minutes for recipe
+            
+        Returns:
+            Dict[str, Any]: Random recipe results containing:
+                - recipes: List of random recipe objects
+        """
+        # Validate diet
+        if diet and diet.lower() not in self.VALID_DIETS:
+            raise ValueError(f"Invalid diet. Valid options are: {', '.join(self.VALID_DIETS)}")
+        
+        # Validate intolerances
+        if intolerances:
+            invalid_intolerances = [i for i in intolerances if i.lower() not in self.VALID_INTOLERANCES]
+            if invalid_intolerances:
+                raise ValueError(f"Invalid intolerances: {', '.join(invalid_intolerances)}. "
+                               f"Valid options are: {', '.join(self.VALID_INTOLERANCES)}")
+        
+        # Build parameters
+        params = {
+            "number": number,
+            "addRecipeInformation": True,
+            "fillIngredients": True,
+            "instructionsRequired": True
+        }
+        
+        # Add optional filters
+        if tags:
+            params["tags"] = ",".join(tags)
+        
+        if diet:
+            params["diet"] = diet.lower()
+        
+        if intolerances:
+            params["intolerances"] = ",".join(intolerances)
+        
+        if max_ready_time:
+            params["maxReadyTime"] = max_ready_time
+        
+        endpoint = "/recipes/random"
         return self._make_request(endpoint, params) 
