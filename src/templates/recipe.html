@@ -10,40 +10,40 @@
             <div class="card p-4 shadow-lg retro-card">
                 <!-- Recipe Header -->
                 <div class="text-center mb-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div></div> <!-- Spacer -->
-                        <h1 class="display-4">{{ recipe.title }}</h1>
-                        {% if current_user.is_authenticated %}
-                        <div class="d-flex flex-column flex-md-row gap-2">
-                            <button class="btn btn-outline-danger favorite-btn" 
-                                    data-recipe-id="{{ recipe.id }}"
-                                    id="favoriteBtn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <button class="btn btn-outline-success"
+                    <h1 class="display-4 mb-3">{{ recipe.title }}</h1>
+                    
+                    <!-- Action Buttons - Centered and below title -->
+                    {% if current_user.is_authenticated %}
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+                        <button class="btn btn-outline-danger favorite-btn" 
                                 data-recipe-id="{{ recipe.id }}"
-                                data-recipe-title="{{ recipe.title }}"
-                                data-recipe-image="{{ recipe.image|default('') }}"
-                                onclick="openMealPlanModalFromButton(this)">
-                                <i class="fas fa-calendar-plus"></i> Add to Meal Plan
+                                id="favoriteBtn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="btn btn-outline-success"
+                            data-recipe-id="{{ recipe.id }}"
+                            data-recipe-title="{{ recipe.title }}"
+                            data-recipe-image="{{ recipe.image|default('') }}"
+                            onclick="openMealPlanModalFromButton(this)">
+                            <i class="fas fa-calendar-plus"></i> Add to Meal Plan
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-folder-plus"></i> Add to Collection
                             </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-folder-plus"></i> Add to Collection
-                                </button>
-                                <ul class="dropdown-menu" id="collectionsDropdown">
-                                    <li><a class="dropdown-item" href="#" onclick="createNewCollection()">
-                                        <i class="fas fa-plus"></i> Create New Collection
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-muted" href="#" id="noCollections">
-                                        <i class="fas fa-info-circle"></i> No collections yet
-                                    </a></li>
-                                </ul>
-                            </div>
+                            <ul class="dropdown-menu" id="collectionsDropdown">
+                                <li><a class="dropdown-item" href="#" onclick="createNewCollection()">
+                                    <i class="fas fa-plus"></i> Create New Collection
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-muted" href="#" id="noCollections">
+                                    <i class="fas fa-info-circle"></i> No collections yet
+                                </a></li>
+                            </ul>
                         </div>
-                        {% endif %}
                     </div>
+                    {% endif %}
+                    
                     {% if recipe.image %}
                     <div class="recipe-image-container my-4">
                         <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="img-fluid rounded">
