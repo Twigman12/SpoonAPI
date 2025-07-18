@@ -17,14 +17,42 @@
 .collection-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.collection-header-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.collection-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.collection-header p {
+    font-size: 1rem;
+    margin-bottom: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.collection-header .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .collection-stats {
     display: flex;
     gap: 15px;
     margin-top: 10px;
+    flex-wrap: wrap;
 }
 
 .collection-stat {
@@ -33,6 +61,8 @@
     background-color: #f8f9fa;
     border-radius: 8px;
     min-width: 80px;
+    flex: 1;
+    min-width: 0;
 }
 
 .collection-stat-number {
@@ -50,12 +80,166 @@
     text-align: center;
     padding: 60px 20px;
     color: #6c757d;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .empty-collections i {
     font-size: 4rem;
     margin-bottom: 20px;
     opacity: 0.5;
+}
+
+.empty-collections h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.empty-collections p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
+.create-first-collection-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    max-width: 100%;
+    width: auto;
+    min-width: 280px;
+}
+
+.create-first-collection-btn i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.create-first-collection-btn .btn-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.create-first-collection-btn .btn-text .line1 {
+    font-size: 0.9rem;
+}
+
+.create-first-collection-btn .btn-text .line2 {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+    .collection-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .collection-header h1 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    .collection-header p {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+    
+    .collection-header .btn {
+        align-self: center;
+        width: auto;
+        min-width: 200px;
+    }
+    
+    .empty-collections {
+        padding: 40px 15px;
+    }
+    
+    .empty-collections h3 {
+        font-size: 1.3rem;
+    }
+    
+    .empty-collections p {
+        font-size: 0.9rem;
+        padding: 0 10px;
+    }
+    
+    .create-first-collection-btn {
+        min-width: 250px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .create-first-collection-btn .btn-text .line1 {
+        font-size: 0.8rem;
+    }
+    
+    .create-first-collection-btn .btn-text .line2 {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .collection-header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .collection-header p {
+        font-size: 0.8rem;
+    }
+    
+    .empty-collections {
+        padding: 30px 10px;
+    }
+    
+    .empty-collections h3 {
+        font-size: 1.2rem;
+    }
+    
+    .empty-collections p {
+        font-size: 0.85rem;
+    }
+    
+    .create-first-collection-btn {
+        min-width: 220px;
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+    
+    .create-first-collection-btn .btn-text .line1 {
+        font-size: 0.75rem;
+    }
+    
+    .create-first-collection-btn .btn-text .line2 {
+        font-size: 0.85rem;
+    }
+}
+
+/* Ensure buttons stay within container */
+.btn {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn i {
+    flex-shrink: 0;
 }
 </style>
 {% endblock %}
@@ -64,7 +248,7 @@
 <div class="container">
     <!-- Header -->
     <div class="collection-header">
-        <div>
+        <div class="collection-header-content">
             <h1><i class="fas fa-folder-open"></i> Recipe Collections</h1>
             <p class="text-muted">Organize your favorite recipes into custom collections</p>
         </div>
@@ -143,8 +327,12 @@
         <i class="fas fa-folder-open"></i>
         <h3>No Collections Yet</h3>
         <p>Create your first recipe collection to start organizing your favorite recipes.</p>
-        <a href="{{ url_for('create_collection') }}" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus"></i> Create Your First Collection
+        <a href="{{ url_for('create_collection') }}" class="btn btn-primary btn-lg create-first-collection-btn">
+            <i class="fas fa-plus"></i>
+            <div class="btn-text">
+                <span class="line1">Create Your First</span>
+                <span class="line2">Collection</span>
+            </div>
         </a>
     </div>
     {% endif %}

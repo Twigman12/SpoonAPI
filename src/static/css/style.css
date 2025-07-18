@@ -337,6 +337,10 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     border-radius: 0;
     box-shadow: 4px 4px 0 var(--retro-text);
     transition: all 0.2s ease;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .btn-primary {
@@ -522,6 +526,13 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     .news-sidebar {
         margin-top: 2rem;
     }
+    
+    /* Ensure proper container behavior */
+    .container {
+        max-width: 100%;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -693,6 +704,9 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
   .btn {
     font-size: 0.6rem;
     padding: 0.4rem 0.6rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .btn-sm {
@@ -705,11 +719,13 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     padding: 0.3rem 0.4rem;
     min-width: 0;
     flex: 1;
+    max-width: 100%;
   }
   
   .btn-group .btn i {
     font-size: 0.6rem;
     margin-right: 0.15rem;
+    flex-shrink: 0;
   }
   
   /* Make button text more compact */
@@ -724,11 +740,38 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
   .btn-group {
     flex-wrap: wrap;
     gap: 0.2rem;
+    max-width: 100%;
   }
   
   .btn-group .btn {
     flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
+  }
+  
+  /* Container improvements for mobile */
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure all content stays within viewport */
+  main {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Improve text wrapping for mobile */
+  h1, h2, h3, h4, h5, h6 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 } 
