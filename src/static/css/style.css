@@ -606,6 +606,17 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
         font-size: 0.65rem;
         margin-right: 0.18rem;
     }
+    
+    /* Recipe action buttons for medium mobile */
+    .recipe-action-buttons {
+        gap: 0.4rem;
+    }
+    
+    .recipe-action-buttons .btn {
+        font-size: 0.65rem;
+        padding: 0.4rem 0.6rem;
+        min-width: 100px;
+    }
 } 
 
 /* Retro Dropdown Menu */

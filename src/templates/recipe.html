@@ -14,7 +14,7 @@
                     
                     <!-- Action Buttons - Centered and below title -->
                     {% if current_user.is_authenticated %}
-                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-4 recipe-action-buttons">
                         <button class="btn btn-outline-danger favorite-btn" 
                                 data-recipe-id="{{ recipe.id }}"
                                 id="favoriteBtn">
@@ -378,6 +378,16 @@ function addToCollection(collectionId) {
 
 function createNewCollection() {
     window.location.href = '/collections/create';
+}
+
+// Function to open meal plan modal from recipe page
+function openMealPlanModalFromButton(button) {
+    const recipeId = button.dataset.recipeId;
+    const recipeTitle = button.dataset.recipeTitle;
+    const recipeImage = button.dataset.recipeImage;
+    
+    // Redirect to meal plan page with recipe pre-selected
+    window.location.href = `/meal-plan?recipe_id=${recipeId}&recipe_title=${encodeURIComponent(recipeTitle)}&recipe_image=${encodeURIComponent(recipeImage)}`;
 }
 
 // Rating system
