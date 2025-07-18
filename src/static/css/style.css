@@ -606,6 +606,17 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
         font-size: 0.65rem;
         margin-right: 0.18rem;
     }
+    
+    /* Recipe action buttons for medium mobile */
+    .recipe-action-buttons {
+        gap: 0.4rem;
+    }
+    
+    .recipe-action-buttons .btn {
+        font-size: 0.65rem;
+        padding: 0.4rem 0.6rem;
+        min-width: 100px;
+    }
 } 
 
 /* Retro Dropdown Menu */
@@ -773,5 +784,41 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
   p {
     word-wrap: break-word;
     overflow-wrap: break-word;
+  }
+  
+  /* Recipe action buttons mobile optimization */
+  .recipe-action-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  .recipe-action-buttons .btn {
+    flex: 1 1 auto;
+    min-width: 120px;
+    max-width: 200px;
+    font-size: 0.7rem;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .recipe-action-buttons .btn i {
+    margin-right: 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Favorite button specific styling */
+  .favorite-btn {
+    min-width: 50px !important;
+    max-width: 60px !important;
+    flex: 0 0 auto !important;
+  }
+  
+  .favorite-btn i {
+    margin-right: 0 !important;
   }
 } 
