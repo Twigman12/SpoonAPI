@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Button Test - Recipe App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Import retro font */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
+
+        :root {
+            --retro-primary: #ff6b6b;
+            --retro-secondary: #4ecdc4;
+            --retro-dark: #45b7af;
+            --retro-light: #ffe66d;
+            --retro-bg: #f7f5e6;
+            --retro-text: #2c3e50;
+            --retro-border: #2c3e50;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--retro-bg);
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            color: var(--retro-text);
+            position: relative;
+        }
+
+        /* Buttons */
+        .btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            padding: 1rem 1.5rem;
+            border: 3px solid var(--retro-border);
+            border-radius: 0;
+            box-shadow: 4px 4px 0 var(--retro-text);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--retro-primary);
+            color: var(--retro-text);
+        }
+
+        .btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--retro-text);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .btn {
+                font-size: 0.7rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .btn-sm {
+                font-size: 0.6rem;
+                padding: 0.4rem 0.6rem;
+            }
+            
+            .btn-group .btn {
+                font-size: 0.6rem;
+                padding: 0.4rem 0.5rem;
+                min-width: 0;
+                flex: 1;
+            }
+            
+            .btn-group .btn i {
+                font-size: 0.7rem;
+                margin-right: 0.2rem;
+            }
+        }
+
+        /* Medium mobile screens */
+        @media (max-width: 640px) {
+            .btn {
+                font-size: 0.65rem;
+                padding: 0.45rem 0.65rem;
+            }
+            
+            .btn-sm {
+                font-size: 0.55rem;
+                padding: 0.35rem 0.55rem;
+            }
+            
+            .btn-group .btn {
+                font-size: 0.55rem;
+                padding: 0.35rem 0.45rem;
+            }
+            
+            .btn-group .btn i {
+                font-size: 0.65rem;
+                margin-right: 0.18rem;
+            }
+        }
+
+        /* Extra small mobile screens */
+        @media (max-width: 576px) {
+            .btn {
+                font-size: 0.6rem;
+                padding: 0.4rem 0.6rem;
+            }
+            
+            .btn-sm {
+                font-size: 0.5rem;
+                padding: 0.3rem 0.5rem;
+            }
+            
+            .btn-group .btn {
+                font-size: 0.5rem;
+                padding: 0.3rem 0.4rem;
+                min-width: 0;
+                flex: 1;
+            }
+            
+            .btn-group .btn i {
+                font-size: 0.6rem;
+                margin-right: 0.15rem;
+            }
+            
+            /* Make button text more compact */
+            .btn-group .btn span,
+            .btn-group .btn {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            /* Ensure button groups don't overflow on very small screens */
+            .btn-group {
+                flex-wrap: wrap;
+                gap: 0.2rem;
+            }
+            
+            .btn-group .btn {
+                flex: 1 1 auto;
+                min-width: 0;
+                max-width: 100%;
+            }
+        }
+
+        .test-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 2px solid var(--retro-border);
+            background: white;
+        }
+
+        h1, h2 {
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .screen-size {
+            background: var(--retro-primary);
+            color: white;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-heart text-danger"></i> Mobile Button Test</h1>
+        
+        <div class="test-section">
+            <div class="screen-size" id="screenSize">Screen Size: <span id="screenWidth"></span>px</div>
+            
+            <h2>Favorites Recipe Card (Original)</h2>
+            <div class="card">
+                <img src="https://via.placeholder.com/300x200/ff6b6b/ffffff?text=CHOCOLATE+ALMOND+BARK" 
+                     class="card-img-top" alt="Chocolate Almond Bark" 
+                     style="height: 200px; object-fit: cover;">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">CHOCOLATE ALMOND BARK</h5>
+                    <p class="card-text text-muted">
+                        <small>
+                            <i class="fas fa-calendar"></i> Added July 18, 2025
+                        </small>
+                    </p>
+                    <div class="mt-auto">
+                        <div class="btn-group w-100" role="group">
+                            <a href="#" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> View Recipe
+                            </a>
+                            <button class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-heart"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Index Page Button Group</h2>
+            <div class="btn-group w-100" role="group">
+                <button type="button" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-heart"></i> Favorites
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-calendar"></i> Meal Plan
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Meal Plan Buttons</h2>
+            <div class="btn-group">
+                <button class="btn btn-outline-primary">
+                    <i class="fas fa-trash"></i> Clear Plan
+                </button>
+                <button class="btn btn-outline-success">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Individual Buttons</h2>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-sm btn-success">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+                <button class="btn btn-sm btn-danger">
+                    <i class="fas fa-minus"></i> Remove
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search Recipes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update screen size display
+        function updateScreenSize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            document.getElementById('screenWidth').textContent = width;
+            document.getElementById('screenSize').textContent = `Screen Size: ${width}px × ${height}px`;
+        }
+
+        // Update on load and resize
+        window.addEventListener('load', updateScreenSize);
+        window.addEventListener('resize', updateScreenSize);
+    </script>
+</body>
+</html>
