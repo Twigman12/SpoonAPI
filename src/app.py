@@ -73,7 +73,31 @@ def create_app() -> Flask:
     @login_required
     def dashboard():
         """User dashboard with personalized content."""
-        return render_template('dashboard.html')
+        # Get user's recent favorites
+        user_favorites = Favorite.query.filter_by(user_id=current_user.id).order_by(Favorite.added_at.desc()).limit(6).all()
+        
+        # Get user's collections
+        user_collections = RecipeCollection.query.filter_by(user_id=current_user.id).all()
+        
+        # Get current meal plan
+        today = datetime.today()
+        week_start = (today - timedelta(days=today.weekday())).date()
+        current_meal_plan = MealPlan.query.filter_by(user_id=current_user.id, week_start=week_start).first()
+        
+        # Get user preferences
+        user_pref = UserPreference.query.filter_by(user_id=current_user.id).first()
+        
+        # Get counts for stats
+        total_favorites = Favorite.query.filter_by(user_id=current_user.id).count()
+        total_collections = RecipeCollection.query.filter_by(user_id=current_user.id).count()
+        
+        return render_template('dashboard.html', 
+                             favorites=user_favorites,
+                             collections=user_collections,
+                             current_meal_plan=current_meal_plan,
+                             user_pref=user_pref,
+                             total_favorites=total_favorites,
+                             total_collections=total_collections)
 
     @app.route('/collections')
     @login_required
@@ -197,7 +221,7 @@ def create_app() -> Flask:
         try:
             from news_parser import NewsParser
             import os
-            api_key = os.getenv('NEWS_API_KEY')
+            api_key = os.getenv('GUARDIAN_API_KEY')
             articles = NewsParser(api_key).fetch_popular_recipe_articles()
         except Exception as e:
             print(f"Error fetching articles: {e}")

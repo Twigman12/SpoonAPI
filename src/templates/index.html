@@ -342,7 +342,7 @@ function displayRandomRecipe(recipe) {
 }
 
 function loadFavorites() {
-    window.location.href = '/favorites';
+    window.location.href = "{{ url_for('favorites.favorites') }}";
 }
 
 function loadMealPlan() {
