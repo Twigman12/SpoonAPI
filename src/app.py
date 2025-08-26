@@ -161,7 +161,7 @@ def create_app() -> Flask:
             days.append({'date': day_date, 'day_short': day_short, 'day_number': day_number, 'meals': day_meals})
         prev_week = week_start - timedelta(days=7)
         next_week = week_start + timedelta(days=7)
-        return render_template('meal_plan.html', days=days, meal_types=meal_types, meal_plan=meal_plan, week_start=week_start, prev_week=prev_week, next_week=next_week)
+        return render_template('meal_plan.html', days=days, meal_types=meal_types, meal_plan=meal_plan, week_start=week_start, prev_week=prev_week, next_week=next_week, timedelta=timedelta)
 
     @app.route('/meal-plan/add', methods=['POST'])
     @login_required
@@ -208,6 +208,21 @@ def create_app() -> Flask:
             MealPlanItem.query.filter_by(meal_plan_id=meal_plan.id, day_of_week=day_of_week, meal_type=meal_type).delete()
             db.session.commit()
         return jsonify({'status': 'removed'})
+
+    @app.route('/meal-plan/clear', methods=['POST'])
+    @login_required
+    def clear_meal_plan():
+        """Clear all meals for a specific week."""
+        data = request.get_json()
+        week_start = datetime.strptime(data['week_start'], '%Y-%m-%d').date()
+        meal_plan = MealPlan.query.filter_by(user_id=current_user.id, week_start=week_start).first()
+        if meal_plan:
+            # Delete all meal items for this plan
+            MealPlanItem.query.filter_by(meal_plan_id=meal_plan.id).delete()
+            # Delete the meal plan itself
+            db.session.delete(meal_plan)
+            db.session.commit()
+        return jsonify({'status': 'cleared'})
 
     @app.route('/preferences')
     @login_required
