@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, date
 
 db = SQLAlchemy()
 
@@ -15,6 +15,9 @@ class User(UserMixin, db.Model):
     favorites = db.relationship('Favorite', backref='user', lazy=True)
     meal_plans = db.relationship('MealPlan', backref='user', lazy=True)
     collections = db.relationship('RecipeCollection', backref='user', lazy=True)
+    inventory_items = db.relationship('InventoryItem', backref='user', lazy=True)
+    storage_locations = db.relationship('StorageLocation', backref='user', lazy=True)
+    inventory_history = db.relationship('InventoryHistory', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -94,4 +97,54 @@ class MealPlanItem(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Ensure one meal per type per day
-    __table_args__ = (db.UniqueConstraint('meal_plan_id', 'day_of_week', 'meal_type', name='_meal_plan_day_type_uc'),) 
+    __table_args__ = (db.UniqueConstraint('meal_plan_id', 'day_of_week', 'meal_type', name='_meal_plan_day_type_uc'),)
+
+class StorageLocation(db.Model):
+    """User-defined storage locations (fridge, pantry, freezer, etc.)"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)  # "Refrigerator", "Pantry"
+    location_type = db.Column(db.String(50), nullable=False)  # "fridge", "pantry", "freezer"
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    items = db.relationship('InventoryItem', backref='storage_location', lazy=True, cascade='all, delete-orphan')
+    
+    # Ensure unique location names per user
+    __table_args__ = (db.UniqueConstraint('user_id', 'name', name='_user_location_name_uc'),)
+
+class InventoryItem(db.Model):
+    """Individual items in user's inventory"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    storage_location_id = db.Column(db.Integer, db.ForeignKey('storage_location.id'), nullable=False)
+    
+    # Item details
+    name = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(50), nullable=False)  # "produce", "dairy", "meat", etc.
+    quantity = db.Column(db.Float, nullable=False, default=0)
+    unit = db.Column(db.String(20), nullable=False)  # "pcs", "kg", "l", etc.
+    
+    # Tracking
+    expiry_date = db.Column(db.Date)
+    purchase_date = db.Column(db.Date, default=date.today)
+    notes = db.Column(db.Text)
+    
+    # Metadata
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Recipe integration
+    recipe_ingredient_id = db.Column(db.Integer)  # Link to Spoonacular ingredient ID
+    
+    # Ensure unique items per user per location
+    __table_args__ = (db.UniqueConstraint('user_id', 'storage_location_id', 'name', name='_user_location_item_uc'),)
+
+class InventoryHistory(db.Model):
+    """Track inventory changes for analytics"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('inventory_item.id'), nullable=False)
+    action = db.Column(db.String(20), nullable=False)  # "add", "use", "expire", "delete"
+    quantity_change = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    notes = db.Column(db.Text) 

@@ -16,6 +16,8 @@ from data_parser import parse_recipe_search_results, parse_recipe_details
 from news_parser import NewsParser
 from auth import auth
 from routes.favorites import favorites_bp
+from routes.inventory import inventory_bp
+from routes.storage import storage_bp
 
 load_dotenv()
 
@@ -47,6 +49,8 @@ def create_app() -> Flask:
     # Register blueprints
     app.register_blueprint(auth)
     app.register_blueprint(favorites_bp)
+    app.register_blueprint(inventory_bp)
+    app.register_blueprint(storage_bp)
 
     # Initialize database tables
     with app.app_context():
@@ -91,13 +95,19 @@ def create_app() -> Flask:
         total_favorites = Favorite.query.filter_by(user_id=current_user.id).count()
         total_collections = RecipeCollection.query.filter_by(user_id=current_user.id).count()
         
+        # Get inventory stats
+        from services.inventory_service import InventoryService
+        inventory_service = InventoryService()
+        inventory_stats = inventory_service.get_inventory_stats(current_user.id)
+        
         return render_template('dashboard.html', 
                              favorites=user_favorites,
                              collections=user_collections,
                              current_meal_plan=current_meal_plan,
                              user_pref=user_pref,
                              total_favorites=total_favorites,
-                             total_collections=total_collections)
+                             total_collections=total_collections,
+                             inventory_stats=inventory_stats)
 
     @app.route('/collections')
     @login_required
@@ -208,6 +218,29 @@ def create_app() -> Flask:
             MealPlanItem.query.filter_by(meal_plan_id=meal_plan.id, day_of_week=day_of_week, meal_type=meal_type).delete()
             db.session.commit()
         return jsonify({'status': 'removed'})
+
+    @app.route('/kitchen-inventory')
+    @login_required
+    def kitchen_inventory():
+        """Kitchen inventory management page."""
+        from services.storage_service import StorageService
+        from services.inventory_service import InventoryService
+        
+        # Get storage locations and inventory stats
+        storage_service = StorageService()
+        inventory_service = InventoryService()
+        
+        storage_locations = storage_service.get_user_storage_locations(current_user.id)
+        inventory_stats = inventory_service.get_inventory_stats(current_user.id)
+        
+        # If no storage locations exist, create default ones
+        if not storage_locations:
+            storage_service.create_default_storage_locations(current_user.id)
+            storage_locations = storage_service.get_user_storage_locations(current_user.id)
+        
+        return render_template('kitchen_inventory.html', 
+                             storage_locations=storage_locations,
+                             inventory_stats=inventory_stats)
 
     @app.route('/meal-plan/clear', methods=['POST'])
     @login_required

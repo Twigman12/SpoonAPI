@@ -653,12 +653,15 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     gap: 2rem;
     align-items: flex-start;
     margin-top: 2rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .search-panel {
-    flex: 0 0 28%;
-    min-width: 260px;
-    max-width: 350px;
+    flex: 0 0 32%;
+    min-width: 320px;
+    max-width: 400px;
 }
 
 .recipe-results {
@@ -666,10 +669,55 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     min-width: 0;
 }
 
+/* Desktop optimization for inventory */
+@media (min-width: 1200px) {
+    .main-content-flex {
+        gap: 3rem;
+        max-width: 1600px;
+    }
+    
+    .search-panel {
+        flex: 0 0 30%;
+        min-width: 350px;
+        max-width: 450px;
+    }
+    
+    /* Optimize inventory grid for larger screens */
+    .inventory-card {
+        min-height: 280px;
+    }
+    
+    /* Better stats layout on desktop */
+    #inventoryStats .col-md-3 {
+        flex: 0 0 22%;
+        max-width: 22%;
+    }
+    
+    #inventoryStats .col-md-3:nth-child(4) {
+        flex: 0 0 34%;
+        max-width: 34%;
+    }
+}
+
+@media (max-width: 1199px) and (min-width: 900px) {
+    .main-content-flex {
+        gap: 2.5rem;
+    }
+    
+    .search-panel {
+        flex: 0 0 30%;
+        min-width: 300px;
+        max-width: 380px;
+    }
+}
+
 @media (max-width: 900px) {
     .main-content-flex {
         flex-direction: column;
         gap: 1.5rem;
+        max-width: 100%;
+        margin-left: 1rem;
+        margin-right: 1rem;
     }
     .search-panel, .recipe-results {
         width: 100%;
@@ -976,11 +1024,8 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 .recipe-results {
     margin-top: 20px;
-    max-height: 300px;
-    overflow-y: auto;
-    border: 2px solid var(--retro-border);
-    border-radius: 8px;
-    background: white;
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .recipe-item {
@@ -1174,5 +1219,557 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     
     .modal-body {
         padding: 20px;
+    }
+}
+
+/* Kitchen Inventory Styles */
+.inventory-card {
+    transition: all 0.3s ease;
+    border-left: 5px solid var(--retro-primary);
+}
+
+.inventory-card.expired {
+    border-left-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.inventory-card.expiring-soon {
+    border-left-color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+.inventory-card.good {
+    border-left-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.inventory-card .card-header {
+    background: linear-gradient(135deg, var(--retro-text) 0%, #1a252f 100%);
+    color: var(--retro-light);
+    border-bottom: 3px solid var(--retro-primary);
+}
+
+.inventory-card .badge {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    padding: 0.3em 0.6em;
+    border-radius: 0;
+    text-transform: uppercase;
+}
+
+.alert-sm {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+.alert-sm i {
+    margin-right: 0.5rem;
+}
+
+/* Inventory stats cards - Enhanced for better UX */
+#inventoryStats {
+    margin-bottom: 3rem !important;
+}
+
+#inventoryStats .card {
+    border: 4px solid var(--retro-border);
+    box-shadow: 6px 6px 0 var(--retro-primary);
+    transition: transform 0.2s ease;
+    min-height: 120px;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+}
+
+#inventoryStats .card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 var(--retro-primary);
+}
+
+#inventoryStats .card-body {
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#inventoryStats .card-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2.2rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+    font-weight: bold;
+}
+
+#inventoryStats .card-text {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: var(--retro-text);
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+/* Quick add form styling */
+#quickAddForm .form-control-sm,
+#quickAddForm .form-select-sm {
+    font-size: 1rem;
+    padding: 0.5rem;
+    border: 2px solid var(--retro-border);
+    border-radius: 0;
+}
+
+#quickAddForm .btn-sm {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--retro-border);
+    border-radius: 0;
+}
+
+/* Expiry status styling */
+.expired {
+    color: #dc3545 !important;
+    font-weight: bold;
+}
+
+.expiring-soon {
+    color: #ffc107 !important;
+    font-weight: bold;
+}
+
+.good {
+    color: #28a745 !important;
+}
+
+/* Category icons */
+.inventory-card .fa-apple-alt,
+.inventory-card .fa-cheese,
+.inventory-card .fa-drumstick-bite,
+.inventory-card .fa-wheat-awn,
+.inventory-card .fa-pepper-hot,
+.inventory-card .fa-snowflake,
+.inventory-card .fa-wine-bottle {
+    color: var(--retro-primary);
+    filter: drop-shadow(2px 2px 0 var(--retro-text));
+}
+
+/* Dropdown menu for inventory items */
+.inventory-card .dropdown-menu {
+    background-color: var(--retro-text);
+    border: 2px solid var(--retro-primary);
+    border-radius: 0;
+    font-family: 'VT323', monospace;
+    min-width: 150px;
+}
+
+.inventory-card .dropdown-item {
+    color: var(--retro-light);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px dashed var(--retro-primary);
+    transition: all 0.2s ease;
+}
+
+.inventory-card .dropdown-item:hover {
+    background-color: var(--retro-primary);
+    color: var(--retro-text);
+}
+
+.inventory-card .dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.inventory-card .dropdown-item i {
+    width: 16px;
+    margin-right: 0.5rem;
+}
+
+/* Responsive adjustments for inventory */
+@media (max-width: 768px) {
+    .inventory-card .card-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .inventory-card .dropdown {
+        align-self: flex-end;
+    }
+    
+    #inventoryStats .card {
+        min-height: 100px;
+        padding: 1rem 0.5rem;
+    }
+    
+    #inventoryStats .card-body {
+        padding: 1rem 0.5rem;
+    }
+    
+    #inventoryStats .card-title {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    #inventoryStats .card-text {
+        font-size: 1.1rem;
+    }
+} 
+
+/* Inventory specific styles */
+.inventory-card {
+    border: 3px solid var(--retro-border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 4px 4px 0 var(--retro-secondary);
+}
+
+.inventory-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 0 var(--retro-secondary);
+}
+
+.inventory-card.expired {
+    border-color: #dc3545;
+    box-shadow: 4px 4px 0 #dc3545;
+}
+
+.inventory-card.expiring-soon {
+    border-color: #ffc107;
+    box-shadow: 4px 4px 0 #ffc107;
+}
+
+.inventory-card.good {
+    border-color: #28a745;
+    box-shadow: 4px 4px 0 #28a745;
+}
+
+/* Inventory stats optimization */
+#inventoryStats .card {
+    border: 3px solid var(--retro-border);
+    border-radius: 8px;
+    background: white;
+    box-shadow: 3px 3px 0 var(--retro-secondary);
+    transition: transform 0.2s ease;
+}
+
+#inventoryStats .card:hover {
+    transform: translateY(-1px);
+}
+
+#inventoryStats .card-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+#inventoryStats .card-text {
+    font-size: 0.9rem;
+    color: var(--retro-text);
+    margin-bottom: 0;
+}
+
+/* Storage location display improvements */
+.inventory-card .fa-map-marker-alt {
+    color: var(--retro-primary);
+    margin-right: 0.5rem;
+}
+
+.inventory-card .card-header {
+    background: var(--retro-bg);
+    border-bottom: 2px solid var(--retro-border);
+}
+
+.inventory-card .badge {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+}
+
+/* Storage location badge styling */
+.storage-location-badge {
+    background: var(--retro-bg);
+    border: 1px solid var(--retro-border);
+    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--retro-text);
+    margin-top: 0.5rem;
+}
+
+.storage-location-badge .fa-map-marker-alt {
+    color: var(--retro-primary);
+    margin-right: 0.4rem;
+    font-size: 0.9rem;
+}
+
+.location-name {
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* Desktop optimization for storage location badge */
+@media (min-width: 1200px) {
+    .storage-location-badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .storage-location-badge .fa-map-marker-alt {
+        font-size: 1rem;
+    }
+}
+
+/* Inventory container optimization */
+#inventoryContainer {
+    width: 100%;
+}
+
+#inventoryResults {
+    margin: 0;
+    width: 100%;
+}
+
+#inventoryResults .row {
+    margin: 0;
+    width: 100%;
+}
+
+/* Ensure proper spacing between inventory cards */
+#inventoryResults .col-md-6.col-lg-4 {
+    padding: 0 0.75rem;
+}
+
+/* Desktop grid optimization */
+@media (min-width: 1200px) {
+    #inventoryResults .col-md-6.col-lg-4 {
+        flex: 0 0 31%;
+        max-width: 31%;
+    }
+    
+    #inventoryResults .col-md-6.col-lg-4:nth-child(3n+1) {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 1400px) {
+    #inventoryResults .col-md-6.col-lg-4 {
+        flex: 0 0 30%;
+        max-width: 30%;
+    }
+    
+    .inventory-card {
+        min-height: 300px;
+    }
+    
+    #inventoryStats .card {
+        min-height: 140px;
+        padding: 2rem 1.5rem;
+    }
+    
+    #inventoryStats .card-body {
+        padding: 2rem 1.5rem;
+    }
+    
+    #inventoryStats .card-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    #inventoryStats .card-text {
+        font-size: 1.4rem;
+    }
+} 
+
+/* Retro title styling */
+.retro-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem;
+    color: var(--retro-primary);
+    text-shadow: 2px 2px 0 var(--retro-border);
+    margin-bottom: 1rem;
+}
+
+/* Right panel styling without card wrapper */
+.recipe-results .retro-title {
+    margin-top: 0;
+    padding-top: 1rem;
+}
+
+/* Storage locations styling */
+.storage-locations-container {
+    padding: 0;
+    margin: 0;
+}
+
+.storage-location-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border: 2px solid var(--retro-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    min-height: 48px;
+}
+
+.storage-location-item:hover {
+    background: var(--retro-bg);
+    border-color: var(--retro-primary);
+    transform: translateY(-1px);
+    box-shadow: 2px 2px 0 var(--retro-primary);
+}
+
+.storage-location-item:last-child {
+    margin-bottom: 0;
+}
+
+.storage-location-text {
+    color: var(--retro-text);
+    font-weight: 500;
+}
+
+.storage-location-chevron {
+    color: var(--retro-primary);
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+
+.storage-location-item:hover .storage-location-chevron {
+    transform: rotate(180deg);
+}
+
+/* Inventory grid styling */
+.inventory-item-card {
+    border: 3px solid var(--retro-border);
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+    background: white;
+}
+
+.inventory-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 var(--retro-primary);
+}
+
+.inventory-item-card .card-img-top {
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(135deg, var(--retro-primary), var(--retro-secondary));
+}
+
+.inventory-item-card .badge {
+    border: 2px solid var(--retro-border);
+    font-family: 'VT323', monospace;
+    font-size: 0.8rem;
+}
+
+/* Filter tabs styling */
+.btn-group .btn {
+    border: 2px solid var(--retro-border);
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+}
+
+.btn-group .btn.active {
+    background: var(--retro-primary);
+    color: white;
+    border-color: var(--retro-primary);
+}
+
+.btn-group .btn:not(.active) {
+    background: white;
+    color: var(--retro-text);
+}
+
+.btn-group .btn:not(.active):hover {
+    background: var(--retro-bg);
+}
+
+/* Storage summary section */
+#storageSummary {
+    background: var(--retro-bg);
+    border: 2px solid var(--retro-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+#storageSummary h5 {
+    color: var(--retro-primary);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+#storageSummary .card {
+    border: 2px solid var(--retro-border);
+    border-radius: 6px;
+    background: white;
+    box-shadow: 2px 2px 0 var(--retro-secondary);
+    transition: transform 0.2s ease;
+}
+
+#storageSummary .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 var(--retro-secondary);
+}
+
+#storageSummary .card-body {
+    padding: 1rem;
+}
+
+#storageSummary .fa-3x {
+    color: var(--retro-primary);
+    margin-bottom: 0.5rem;
+}
+
+#storageSummary .card-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--retro-text);
+}
+
+#storageSummary .card-text {
+    font-size: 0.8rem;
+    color: var(--retro-text);
+    margin-bottom: 0;
+}
+
+/* Desktop optimization for storage summary */
+@media (min-width: 1200px) {
+    #storageSummary {
+        padding: 2rem;
+    }
+    
+    #storageSummary h5 {
+        font-size: 1.4rem;
+    }
+    
+    #storageLocations .col-md-4 {
+        flex: 0 0 23%;
+        max-width: 23%;
+    }
+    
+    #storageLocations .col-md-4:nth-child(4n+1) {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 1400px) {
+    #storageSummary {
+        padding: 2.5rem;
+    }
+    
+    #storageLocations .col-md-4 {
+        flex: 0 0 20%;
+        max-width: 20%;
     }
 } 
